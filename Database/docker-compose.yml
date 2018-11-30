@@ -1,0 +1,15 @@
+version: '2'
+
+services: 
+  TestDB:
+    image: mariadb
+  
+    ports:
+      - "3326:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: pass.123
+    volumes:
+      - "./dump:/docker-entrypoint-initdb.d"
+    
+    stdin_open: true
+    tty: true

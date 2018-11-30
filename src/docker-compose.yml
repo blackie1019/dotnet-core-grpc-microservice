@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  web-service:
+    container_name: web.service
+    build:
+      context:  ./MockSite.Web
+      dockerfile: Dockerfile
+    expose:
+    - "5001"
+
+  reverse-proxy:
+    container_name: web.proxy
+    build:
+      context:  ./WebProxy
+      dockerfile: Dockerfile
+    ports:
+    - "80:80"
+    links:
+    - web-service

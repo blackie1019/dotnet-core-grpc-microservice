@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package User; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+option csharp_namespace = "MockSite.Message";
+import "UserMessage.proto";
+
+service UserService {
+  rpc Create (User) returns (ResponseBase);
+  rpc GetAll (Empty) returns (Users);
+  rpc Get (UserCode) returns (User);
+  rpc Update (User) returns (ResponseBase);
+  rpc Delete (UserCode) returns (ResponseBase);
+}
