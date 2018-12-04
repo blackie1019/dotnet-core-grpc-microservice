@@ -1,11 +1,11 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { createBrowserHistory } from "history";
-import { Router, Route, Switch } from "react-router-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createBrowserHistory } from 'history';
+import { Router, Route, Switch } from 'react-router-dom';
 
-import indexRoutes from "routes/index.jsx";
+import indexRoutes from 'routes/index.jsx';
 
-import "assets/scss/material-dashboard-pro-react.css?v=1.4.0";
+import 'assets/scss/material-dashboard-pro-react.css?v=1.4.0';
 
 const hist = createBrowserHistory();
 
@@ -17,5 +17,5 @@ ReactDOM.render(
       })}
     </Switch>
   </Router>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
