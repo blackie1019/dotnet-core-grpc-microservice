@@ -6,6 +6,7 @@ import { Router, Route, Switch } from 'react-router-dom';
 import indexRoutes from 'routes/index.jsx';
 
 import 'assets/scss/material-dashboard-pro-react.css?v=1.4.0';
+import * as serviceWorker from './serviceWorker';
 
 const hist = createBrowserHistory();
 
@@ -19,3 +20,5 @@ ReactDOM.render(
   </Router>,
   document.getElementById('root')
 );
+
+serviceWorker.unregister();
