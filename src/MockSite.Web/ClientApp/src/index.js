@@ -1,24 +1,26 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { createBrowserHistory } from 'history';
-import { Router, Route, Switch } from 'react-router-dom';
-
-import indexRoutes from 'routes/index.jsx';
+import { render } from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
 
 import 'assets/scss/material-dashboard-pro-react.css?v=1.4.0';
 import * as serviceWorker from './serviceWorker';
 
-const hist = createBrowserHistory();
+const rootElement = document.getElementById('root');
 
-ReactDOM.render(
-  <Router history={hist}>
-    <Switch>
-      {indexRoutes.map((prop, key) => {
-        return <Route path={prop.path} component={prop.component} key={key} />;
-      })}
-    </Switch>
-  </Router>,
-  document.getElementById('root')
-);
+const renderApp = element => {
+  const App = require('./App.jsx').default;
+  render(
+    <AppContainer>
+      <App />
+    </AppContainer>,
+    element
+  );
+};
+
+renderApp(rootElement);
+
+if (process.env.NODE_ENV !== 'production' && module.hot) {
+  module.hot.accept('./App.jsx', () => renderApp(rootElement));
+}
 
 serviceWorker.unregister();
