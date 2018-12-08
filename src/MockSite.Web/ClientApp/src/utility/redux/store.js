@@ -1,7 +1,7 @@
-import reducer from 'core/reducer';
 import { createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import rootSaga from 'core/saga';
+import reducer from 'core/rootReducer';
+import rootSaga from 'core/rootSaga';
 const sagaMiddleware = createSagaMiddleware();
 const middleware = applyMiddleware(sagaMiddleware);
 
@@ -11,12 +11,12 @@ let sagaTask = sagaMiddleware.run(function*() {
   yield rootSaga();
 });
 if (process.env.NODE_ENV !== 'production' && module.hot) {
-  module.hot.accept('core/reducer', () => {
-    const nextReducer = require('core/reducer').default;
+  module.hot.accept('core/rootReducer', () => {
+    const nextReducer = require('core/rootReducer').default;
     store.replaceReducer(nextReducer);
   });
-  module.hot.accept('core/saga', () => {
-    const getNewSagas = require('core/saga').default;
+  module.hot.accept('core/rootSaga', () => {
+    const getNewSagas = require('core/rootSaga').default;
     sagaTask.cancel();
     sagaTask.done.then(() => {
       sagaTask = sagaMiddleware.run(function* replacedSaga() {

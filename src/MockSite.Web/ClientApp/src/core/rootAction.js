@@ -1,7 +1,7 @@
-import test from 'core/test/action';
+import example from 'core/example/action';
 import errorHandler from 'core/errorHandler/action';
 
 export default {
-  test,
+  example,
   errorHandler
 };

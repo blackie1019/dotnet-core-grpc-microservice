@@ -87,7 +87,6 @@
     "react-dev-utils": "6.1.1",
     "react-dom": "^16.6.3",
     "react-google-maps": "9.4.5",
-    "react-hot-loader": "^4.3.12",
     "react-jvectormap": "0.0.3",
     "react-redux": "^6.0.0",
     "react-router-dom": "4.3.1",

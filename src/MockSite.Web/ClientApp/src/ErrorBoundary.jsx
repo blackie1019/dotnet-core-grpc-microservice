@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import actionCreator from 'core/action';
+import actionCreator from 'core/rootAction';
 
 class ErrorBoundary extends Component {
   state = { hasError: false };
