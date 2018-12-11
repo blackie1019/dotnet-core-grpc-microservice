@@ -3,7 +3,7 @@ module.exports = {
   verbose: true,
   testEnvironment: 'node',
   rootDir: '../../',
-  setupFiles: ['<rootDir>/config/polyfills.js'],
+  setupFiles: ['react-app-polyfill/jsdom'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}',
     '<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}'
