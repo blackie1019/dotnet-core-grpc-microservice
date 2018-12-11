@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/*
-!node_modules/flatmap-stream/
+*!node_modules/flatmap-stream/
 
 .DS_Store
 

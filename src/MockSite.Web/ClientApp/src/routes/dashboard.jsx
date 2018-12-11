@@ -27,8 +27,10 @@ import TimelinePage from "views/Pages/Timeline.jsx";
 import RTLSupport from "views/Pages/RTLSupport.jsx";
 
 import pagesRoutes from "./pages.jsx";
+import authorizationRoutes from "./authorizations.jsx";
 
 // @material-ui/icons
+
 import UserIcon from "@material-ui/icons/Face";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import Image from "@material-ui/icons/Image";
@@ -61,13 +63,12 @@ var pages = [
   }
 ].concat(pagesRoutes);
 
-var dashRoutes = [
+var dashRoutes = authorizationRoutes.concat([
   {
     collapse: true,
     path: "/user",
     name: "User",
     icon: UserIcon,
-    component: UserList,
     views: [
       {
         path: "/user/list",
@@ -219,7 +220,7 @@ var dashRoutes = [
       },
       {
         path: "/maps/vector-maps",
-        name: "Vector Map",
+        name: "Vectcor Map",
         mini: "VM",
         component: VectorMap
       }
@@ -228,6 +229,6 @@ var dashRoutes = [
   { path: "/widgets", name: "Widgets", icon: WidgetsIcon, component: Widgets },
   { path: "/charts", name: "Charts", icon: Timeline, component: Charts },
   { path: "/calendar", name: "Calendar", icon: DateRange, component: Calendar },
-  { redirect: true, path: "/", pathTo: "/user/list", name: "User List" }
-];
+  { redirect: true, path: "/", pathTo: "/user/list", name: "User List"}
+]);
 export default dashRoutes;
