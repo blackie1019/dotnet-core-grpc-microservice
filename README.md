@@ -2,9 +2,19 @@
 
 Mock Project for external members
 
+## IDE
+
+- Client Side
+
+    [VS Code](https://code.visualstudio.com/)
+
+- .NET Core & Database
+
+    [Rider](https://www.jetbrains.com/rider/)
+
 ## Step 1 - DB Restroe
 
-Please see [database preparation README file](Database/README.md) on DataBase folder.
+Please see [database preparation README file](database/README.md) on DataBase folder.
 
 ---
 
@@ -118,7 +128,7 @@ Install [node](https://nodejs.org/en/download/) in your system.
 
 Path of front-end : `/src/MockSite.Web/ClientApp`
 
-And do `npm install`.
+And do `npm install` before execute project from Rider or VSCode for .NET Development with Web.
 
 ### 1. Host gRPC Domain Service ###
 
@@ -132,17 +142,35 @@ Please run below command to run console for Domain Service:
 
 [Front-end UI framework development README file](/src/MockSite.Web/ClientApp/README.md)
 
-#### 3. React Development Only
-
 1. Path of ASP.NET Core solution: `/MockSite.sln`
 
-Run or Debug from Rider/Dotnet CLI/vscode to host `SPA Service` for React Development
+    Run or Debug from Rider/Dotnet CLI/vscode to host `SPA Service` for React Development
 
 2. Path of front-end : `/src/MockSite.Web/ClientApp`
 
-   prerequisite steps: do `npm install` first and run below command to start front-end:
+    prerequisite steps: do `npm install` first and run below command to start front-end:
 
         npm start
+
+---
+
+### Database development
+
+[Connecting to a database](https://www.jetbrains.com/help/rider/Connecting_to_a_database.html)
+
+1. Add MariaDB connection in Rider.
+
+- Add data source > MariaDB
+  
+  - host: localhost
+  - port: 3326
+  - username: root
+  - password: pass.123
+
+
+2. Change to show TestDB view
+
+    Rider > Database tools > Manage shown schemas… > Choose TestDB
 
 ---
 
