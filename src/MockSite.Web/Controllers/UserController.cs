@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using Grpc.Core;
 using Infrastructure;
 using Infrastructure.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockSite.Message;
 using MockSite.Web.Models;
 
 namespace MockSite.Web.Controllers
 {
+    [Authorize]
     [Route("api/[Controller]")]
     public class UserController : ControllerBase
     {
