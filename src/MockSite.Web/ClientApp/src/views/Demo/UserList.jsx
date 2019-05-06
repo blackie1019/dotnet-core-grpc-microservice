@@ -35,7 +35,6 @@ const styles = {
 class UserList extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       data: dataTable.dataRows.map((prop, key) => {
         return {
@@ -123,38 +122,45 @@ class UserList extends React.Component {
         };
       })
     };
-
-      if(localStorage.getItem("token")==null ||  localStorage.getItem("token")===""){
-          this.props.history.push('/authorization/login');
-      }
   }
 
   componentDidMount() {
-    
-    const config = {
-        headers: {
-            Authorization: localStorage.getItem("token")
-        }
-    };
+      const loginUser = {
+          username: "test",
+          password: "test",
+      };
 
-    axios.get('https://localhost:5001/api/User/GetUsers', config)
-        .then(response => {
-            const result = response.data;
-            if (result.code === 0) {
-                // console.log(response.data.data);
-                this.setState({
-                    data: result.data.map((prop, key) => {
-                        return {
-                            id: key,
-                            code: prop.code,
-                            displayKey: prop.displayKey,
-                            orderNo: prop.orderNo,
-                        }
-                    })
-                });
-            }
-        });
-   }
+      axios.post('https://localhost:5001/api/Authorized/login', loginUser)
+          .then(response => {
+              localStorage.setItem("token",`Bearer ${response.data.token}`);
+          }).finally(x => {
+
+              const config = {
+                  headers: {
+                      Authorization: localStorage.getItem("token")
+                  }
+              };
+
+              axios.get('https://localhost:5001/api/User/GetUsers', config)
+                  .then(response => {
+                      const result = response.data;
+                      if (result.code === 0) {
+                          // console.log(response.data.data);
+                          this.setState({
+                              data: result.data.map((prop, key) => {
+                                  return {
+                                      id: key,
+                                      code: prop.code,
+                                      displayKey: prop.displayKey,
+                                      orderNo: prop.orderNo,
+                                  }
+                              })
+                          });
+                      }
+                  });
+          }
+      );
+  }
 
   render() {
     const { classes } = this.props;

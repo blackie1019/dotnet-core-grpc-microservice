@@ -1,40 +1,41 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MockSite.Core.DTOs;
 using MockSite.Core.Entities;
 using MockSite.Core.Repositories;
 
 namespace MockSite.Core.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository _userRepository;
 
-        public UserService(IRepository<User> repository)
+        public UserService(IRepository repository)
         {
             _userRepository = repository;
         }
         
-        public async Task Create(User user)
+        public async Task Create(UserDTO user)
         {
             await _userRepository.Create(user);
         }
 
-        public async Task Update(User user)
+        public async Task Update(UserDTO user)
         {
             await _userRepository.Update(user);
         }
 
-        public async Task Delete(User user)
+        public async Task Delete(UserDTO user)
         {
             await _userRepository.Delete(user);
         }
 
-        public async Task<User> GetByCode(int code)
+        public async Task<UserEntity> GetByCode(int code)
         {
-            return await _userRepository.GetByPk(code);
+            return await _userRepository.GetByCode(code);
         }
 
-        public async Task<IEnumerable<User>> GetAll()
+        public async Task<IEnumerable<UserEntity>> GetAll()
         {
             return await _userRepository.GetAll();
         }

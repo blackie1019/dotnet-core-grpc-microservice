@@ -1,15 +1,18 @@
 using System;
 using System.Threading.Tasks;
 using Grpc.Core;
+using MockSite.Core.DTOs;
+using MockSite.Core.Services;
 using MockSite.Message;
+using UserService = MockSite.Message.UserService;
 
 namespace MockSite.DomainService
 {
     public class UserServiceImpl:UserService.UserServiceBase
     {
-        private readonly Core.Services.UserService _coreService;
+        private readonly IUserService _coreService;
 
-        public UserServiceImpl(Core.Services.UserService service)
+        public UserServiceImpl(IUserService service)
         {
             _coreService = service;
         }
@@ -19,7 +22,7 @@ namespace MockSite.DomainService
             var result = new ResponseBase();
             try
             {
-                await _coreService.Create(new Core.Entities.User
+                await _coreService.Create(new UserDTO
                 {
                     Code = request.Code,
                     DisplayKey = request.DisplayKey,
@@ -40,7 +43,7 @@ namespace MockSite.DomainService
             var result = new ResponseBase();
             try
             {
-                await _coreService.Update(new Core.Entities.User
+                await _coreService.Update(new UserDTO
                 {
                     Code = request.Code,
                     DisplayKey = request.DisplayKey,
@@ -61,7 +64,7 @@ namespace MockSite.DomainService
             var result = new ResponseBase();
             try
             {
-                await _coreService.Delete(new Core.Entities.User{Code = request.Code});
+                await _coreService.Delete(new UserDTO{Code = request.Code});
                 result.Code = ResponseCode.Success;
             }
             catch (Exception)

@@ -1,10 +1,18 @@
 ﻿using System;
 using Grpc.Core;
-using Infrastructure;
-using Infrastructure.Helpers;
-using MockSite.Core.Repositories;
+using Grpc.Core.Interceptors;
+using Jaeger;
+using Microsoft.Extensions.Logging;
 using MockSite.Core.Services;
-using System.Threading;
+using MockSite.Common.Core.Constants.DomainService;
+using MockSite.Common.Core.Utilities;
+using MockSite.Common.Logging.Utilities;
+using MockSite.Common.Logging.Utilities.LogDetail;
+using MockSite.Common.Logging.Utilities.LogProvider.Serilog;
+using MockSite.DomainService.Utilities;
+using MockSite.Message;
+using OpenTracing.Contrib.Grpc.Interceptors;
+using Unity;
 
 namespace MockSite.DomainService
 {
@@ -12,8 +20,32 @@ namespace MockSite.DomainService
     {
         static void Main(string[] args)
         {
-            var host = AppSettingsHelper.Instance.GetValueFromKey(MessageConst.TestHostNameKey);
-            var port = Convert.ToInt32(AppSettingsHelper.Instance.GetValueFromKey(MessageConst.TestPortKey));
+            Initialize();
+
+            var server = GenerateServerInstance();
+
+            server.Start();
+
+            WaitingForTerminateServerInstance(server);
+        }
+
+        private static void Initialize()
+        {
+            PrintLogAndConsole("Initialize Logger...");
+            LoggerHelper.Instance.SetLogProvider(SeriLogProvider.Instance);
+        }
+
+        private static Server GenerateServerInstance()
+        {
+            PrintLogAndConsole("Initialize gRPC server ...");
+            
+            ILoggerFactory loggerFactory = new LoggerFactory().AddConsole();
+            var serviceName = "MockSite.DomainService";
+            Tracer tracer = TracingHelper.InitTracer(serviceName, loggerFactory);
+            ServerTracingInterceptor tracingInterceptor = new ServerTracingInterceptor(tracer);
+
+            var host = AppSettingsHelper.Instance.GetValueFromKey(HostNameConst.TestKey);
+            var port = Convert.ToInt32(AppSettingsHelper.Instance.GetValueFromKey(PortConst.TestKey));
 
             var server = new Server
             {
@@ -23,21 +55,34 @@ namespace MockSite.DomainService
                 }
             };
 
-            server.Services.Add(
-                Message.UserService.BindService(
-                    new UserServiceImpl(
-                        new UserService(
-                            new UserRepository()))));
-
             Console.WriteLine($"Greeter server listening on host:{host} and port:{port}");
 
-            server.Start();
-
-            Console.WriteLine("Press any key to stop the server...");
-            // Console.ReadKey();
-            Thread.Sleep(Timeout.Infinite);
-
-            server.ShutdownAsync().Wait();
+            server.Services.Add(
+                Message.UserService.BindService(
+                    new UserServiceImpl(ContainerHelper.Instance.Container.Resolve<IUserService>())).Intercept(tracingInterceptor));
+            return server;
         }
+
+        #region - Private -
+
+        private static void PrintLogAndConsole(string msg)
+        {
+            Console.WriteLine(msg);
+            LoggerHelper.Instance.Info(new InfoDetail
+            {
+                Message = msg, Target = "Program"
+            });
+        }
+
+        private static void WaitingForTerminateServerInstance(Server serverInstance)
+        {
+            PrintLogAndConsole("Server is up. Input any key to shutdown...");
+
+            Console.ReadKey();
+
+            serverInstance.ShutdownAsync().Wait();
+        }
+
+        #endregion
     }
 }

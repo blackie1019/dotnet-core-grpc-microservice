@@ -1,20 +1,21 @@
-import React from 'react';
-import { render } from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import { createBrowserHistory } from "history";
+import { Router, Route, Switch } from "react-router-dom";
 
-import 'assets/scss/material-dashboard-pro-react.css?v=1.4.0';
-import * as serviceWorker from './serviceWorker';
+import indexRoutes from "routes/index.jsx";
 
-const rootElement = document.getElementById('root');
+import "assets/scss/material-dashboard-pro-react.css?v=1.4.0";
 
-const renderApp = element => {
-  const App = require('./App.jsx').default;
-  render(<App />, element);
-};
+const hist = createBrowserHistory();
 
-renderApp(rootElement);
-
-if (process.env.NODE_ENV !== 'production' && module.hot) {
-  module.hot.accept('./App.jsx', () => renderApp(rootElement));
-}
-
-serviceWorker.unregister();
+ReactDOM.render(
+  <Router history={hist}>
+    <Switch>
+      {indexRoutes.map((prop, key) => {
+        return <Route path={prop.path} component={prop.component} key={key} />;
+      })}
+    </Switch>
+  </Router>,
+  document.getElementById("root")
+);

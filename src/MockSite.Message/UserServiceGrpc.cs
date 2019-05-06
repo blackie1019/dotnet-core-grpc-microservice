@@ -211,6 +211,19 @@ namespace MockSite.Message {
           .AddMethod(__Method_Delete, serviceImpl.Delete).Build();
     }
 
+    /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
+    /// Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
+    /// <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
+    /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+    public static void BindService(grpc::ServiceBinderBase serviceBinder, UserServiceBase serviceImpl)
+    {
+      serviceBinder.AddMethod(__Method_Create, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.User, global::MockSite.Message.ResponseBase>(serviceImpl.Create));
+      serviceBinder.AddMethod(__Method_GetAll, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.Empty, global::MockSite.Message.Users>(serviceImpl.GetAll));
+      serviceBinder.AddMethod(__Method_Get, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.UserCode, global::MockSite.Message.User>(serviceImpl.Get));
+      serviceBinder.AddMethod(__Method_Update, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.User, global::MockSite.Message.ResponseBase>(serviceImpl.Update));
+      serviceBinder.AddMethod(__Method_Delete, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.UserCode, global::MockSite.Message.ResponseBase>(serviceImpl.Delete));
+    }
+
   }
 }
 #endregion

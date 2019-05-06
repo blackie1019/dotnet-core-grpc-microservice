@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Infrastructure.Helpers;
-using MockSite.Core.Constants;
+using MockSite.Common.Core.Constants.DomainService;
+using MockSite.Common.Core.Utilities;
 using MockSite.Core.Repositories;
 using MockSite.DomainService;
 using MockSite.Message;
@@ -37,7 +37,7 @@ namespace MockSite.Test
 
             // Action
             using (var testConnection =
-                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestDbKey)))
+                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
             {
                 await testConnection.OpenAsync();
                 using (var transaction = testConnection.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
@@ -73,7 +73,7 @@ namespace MockSite.Test
 
             // Action
             using (var testConnection =
-                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestDbKey)))
+                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
             {
                 await testConnection.OpenAsync();
                 using (var transaction = testConnection.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))

@@ -29,10 +29,3 @@
         docker ps -a
 
 3. 透過 *docker-compose* 所 porting 的連線位置取得 DB Instance 的操作
-
-## Docker Commands ##
-
-- `docker images` 可以看所有的 image
-- `docker stop {containerId}` 停掉某個 container
-- `docker rm {containerId}` 刪除某個 container
-- 可以用 `docker-compose up -d` 重建，這時的 image會在 local 有 cache，重啟也比較快

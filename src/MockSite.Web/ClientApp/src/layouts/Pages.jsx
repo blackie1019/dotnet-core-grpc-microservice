@@ -10,13 +10,10 @@ import PagesHeader from "components/Header/PagesHeader.jsx";
 import Footer from "components/Footer/Footer.jsx";
 
 import pagesRoutes from "routes/pages.jsx";
-import authorizationsRoutes from "routes/authorizations.jsx";
 
 import pagesStyle from "assets/jss/material-dashboard-pro-react/layouts/pagesStyle.jsx";
 
 import bgImage from "assets/img/register.jpeg";
-
-let totalRoutes = pagesRoutes.concat(authorizationsRoutes);
 
 class Pages extends React.Component {
   componentDidMount() {
@@ -33,7 +30,7 @@ class Pages extends React.Component {
             style={{ backgroundImage: "url(" + bgImage + ")" }}
           >
             <Switch>
-              {totalRoutes.map((prop, key) => {
+              {pagesRoutes.map((prop, key) => {
                 if (prop.collapse) {
                   return null;
                 }

@@ -1,15 +1,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapper;
+using MockSite.Core.DTOs;
+using MockSite.Core.Entities;
 
 namespace MockSite.Core.Repositories
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository
     {
-        Task Create(T instance);
-        Task Update(T instance);
-        Task Delete(T instance);
-        Task<IEnumerable<T>> GetAll();
-        Task<T> GetByPk(object obj);
+        Task Create(UserDTO userDTO);
+        Task Update(UserDTO userDTO);
+        Task Delete(UserDTO userDTO);
+        Task<IEnumerable<UserEntity>> GetAll();
+        Task<UserEntity> GetByCode(object obj);
     }
 }

@@ -9,21 +9,21 @@ namespace MockSite.Web.Controllers
     [Route("api/[Controller]")]
     public class AuthorizedController : ControllerBase
     {
-        private IAuthorizedService _service;
-
-        public AuthorizedController(IAuthorizedService service)
+        private IUserService _userService;
+        
+        public AuthorizedController(IUserService userService)
         {
-            _service = service;
+            _userService = userService;
         }
-
+        
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginUser userParam)
+        public IActionResult Login([FromBody]LoginUser userParam)
         {
-            var user = _service.Authenticate(userParam.Username, userParam.Password);
+            var user = _userService.Authenticate(userParam.Username, userParam.Password);
 
             if (user == null)
-                return BadRequest(new {message = "Username or password is incorrect"});
+                return BadRequest(new { message = "Username or password is incorrect" });
 
             return Ok(user);
         }

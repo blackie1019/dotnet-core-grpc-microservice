@@ -44,12 +44,6 @@ class UserForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  componentDidMount() {
-      if (localStorage.getItem("token") === "") {
-          this.props.history.push('/authorization/login');
-      }
-  }
-  
   handleChangeCode(event) {
     this.setState({ Code: event.target.value });
   }
@@ -83,13 +77,14 @@ class UserForm extends React.Component {
 
   handleSubmit (event) {
     event.preventDefault();
-    
     const user = {
       code:convertToInt(this.state.Code),
       displayKey:this.state.DisplayKey,
       orderNo:convertToInt(this.state.OrderNo)
     };
-    
+
+
+
     axios.post(`https://localhost:5001/api/User/CreateUser`,  user )
     .then(res => {
       if(res.data.code ===0){

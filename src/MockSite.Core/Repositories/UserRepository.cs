@@ -1,24 +1,25 @@
-using System;
-using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using Dapper.Contrib.Extensions;
-using Infrastructure.Helpers;
-using MockSite.Core.Constants;
+using MockSite.Common.Core.Utilities;
+using MockSite.Common.Data.Utilities;
+using MockSite.Core.DTOs;
 using MockSite.Core.Entities;
 using MySql.Data.MySqlClient;
+using DbConnectionConst = MockSite.Common.Core.Constants.DomainService.DbConnectionConst;
+
 
 namespace MockSite.Core.Repositories
 {
-    public class UserRepository : IRepository<User>
+    public class UserRepository : IRepository
     {
         private readonly MySqlConnection _testConnection;
         private readonly MySqlTransaction _transaction;
 
         private static readonly string ConnString =
-            AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestDbKey);
+            AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey);
+            
 
         public UserRepository(MySqlConnection conn = null, MySqlTransaction transaction = null)
         {
@@ -26,81 +27,82 @@ namespace MockSite.Core.Repositories
             _transaction = transaction;
         }
 
-        public async Task Create(User instance)
+        public async Task Create(UserDTO userDTO)
         {
-            // Calling SP with MySqlConnector(https://github.com/mysql-net/MySqlConnector)
             async Task Execute(MySqlConnection conn)
             {
-                using (var cmd = conn.CreateCommand())
+                var parameters = GenerateParameters();
+                await conn.ExecuteNonQueryAsync
+                (
+                    StoreProcedureName.sp_User_CreateUser,
+                    parameters,
+                    _transaction);
+            }
+
+            if (_testConnection == null)
+            {
+                using (var conn = new MySqlConnection(ConnString))
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = "sp_User_CreateUser";
-                    cmd.Parameters.AddWithValue("IN_Code", instance.Code);
-                    cmd.Parameters.AddWithValue("IN_DisplayKey", instance.DisplayKey);
-                    cmd.Parameters.AddWithValue("IN_OrderNo", instance.OrderNo);
-                    cmd.Parameters.Add(new MySqlParameter
+                    await conn.OpenAsync();
+                    await Execute(conn);
+                }
+            }
+
+            await Execute(_testConnection);
+
+            #region - Parameters -
+
+            List<MySqlParameter> GenerateParameters()
+            {
+                var parameters = new List<MySqlParameter>
+                {
+                    new MySqlParameter
                     {
-                        ParameterName = "OUT_ReturnValue", MySqlDbType = MySqlDbType.Int32,
+                        ParameterName = "IN_Code",
+                        Value = userDTO.Code,
+                        MySqlDbType = MySqlDbType.Int32,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_DisplayKey",
+                        Value = userDTO.DisplayKey,
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_OrderNo",
+                        Value = userDTO.OrderNo,
+                        MySqlDbType = MySqlDbType.Int32,
+                        Direction = ParameterDirection.Input
+                    },
+
+                    new MySqlParameter
+                    {
+                        ParameterName = "OUT_ReturnValue",
+                        MySqlDbType = MySqlDbType.Int32,
                         Direction = ParameterDirection.Output
-                    });
-
-                    if (_transaction != null)
-                    {
-                        cmd.Transaction = _transaction;
                     }
-
-                    await cmd.ExecuteNonQueryAsync();
-                }
+                };
+                return parameters;
             }
 
-            if (_testConnection == null)
-            {
-                using (var conn = new MySqlConnection(ConnString))
-                {
-                    await conn.OpenAsync();
-                    await Execute(conn);
-                }
-            }
-            else
-            {
-                await Execute(_testConnection);
-            }
+            #endregion
         }
 
-        public async Task Update(User instance)
+        public async Task Update(UserDTO userDTO)
         {
-            // Calling SP with MySqlConnector(https://github.com/mysql-net/MySqlConnector)
             async Task Execute(MySqlConnection conn)
             {
-                using (var cmd = conn.CreateCommand())
-                {
-                    try
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandText = "sp_User_UpdateUser";
-                        cmd.Parameters.AddWithValue("IN_Code", instance.Code);
-                        cmd.Parameters.AddWithValue("IN_DisplayKey", instance.DisplayKey);
-                        cmd.Parameters.AddWithValue("IN_OrderNo", instance.OrderNo);
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "OUT_ReturnValue", MySqlDbType = MySqlDbType.Int32,
-                            Direction = ParameterDirection.Output
-                        });
+                var parameters = GenerateParameters();
 
-                        if (_transaction != null)
-                        {
-                            cmd.Transaction = _transaction;
-                        }
-
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
+                await conn.ExecuteNonQueryAsync
+                (
+                    StoreProcedureName.sp_User_UpdateUser,
+                    parameters,
+                    _transaction
+                );
             }
 
             if (_testConnection == null)
@@ -115,25 +117,59 @@ namespace MockSite.Core.Repositories
             {
                 await Execute(_testConnection);
             }
+
+            #region Parameters
+
+            List<MySqlParameter> GenerateParameters()
+            {
+                var parameters = new List<MySqlParameter>
+                {
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_Code",
+                        Value = userDTO.Code,
+                        MySqlDbType = MySqlDbType.String,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_DisplayKey",
+                        Value = userDTO.DisplayKey,
+                        MySqlDbType = MySqlDbType.Int16,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_OrderNo",
+                        Value = userDTO.OrderNo,
+                        MySqlDbType = MySqlDbType.Int16,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "OUT_ReturnValue",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Direction = ParameterDirection.Output
+                    }
+                };
+                return parameters;
+            }
+
+            #endregion
         }
 
-        public async Task Delete(User instance)
+        public async Task Delete(UserDTO userDTO)
         {
-            // Calling SP with MySqlConnector(https://github.com/mysql-net/MySqlConnector)
             async Task Execute(MySqlConnection conn)
             {
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.Connection = conn;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandText = "sp_User_DeleteUser";
-                    cmd.Parameters.AddWithValue("IN_Code", instance.Code);
-                    if (_transaction != null)
-                    {
-                        cmd.Transaction = _transaction;
-                    }
-                    await cmd.ExecuteNonQueryAsync();
-                }
+                var parameters = GenerateParameters();
+
+                await conn.ExecuteNonQueryAsync
+                (
+                    StoreProcedureName.sp_User_DeleteUser,
+                    parameters,
+                    _transaction
+                );
             }
 
             if (_testConnection == null)
@@ -148,55 +184,88 @@ namespace MockSite.Core.Repositories
             {
                 await Execute(_testConnection);
             }
+
+            #region Parameters
+
+            List<MySqlParameter> GenerateParameters()
+            {
+                var parameters = new List<MySqlParameter>
+                {
+                    new MySqlParameter
+                    {
+                        ParameterName = "IN_Code",
+                        Value = userDTO.Code,
+                        MySqlDbType = MySqlDbType.Int32,
+                        Direction = ParameterDirection.Input
+                    },
+                    new MySqlParameter
+                    {
+                        ParameterName = "OUT_ReturnValue",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Direction = ParameterDirection.Output
+                    }
+                };
+                return parameters;
+            }
+
+            #endregion
         }
 
-        public async Task<IEnumerable<User>> GetAll()
+        public async Task<IEnumerable<UserEntity>> GetAll()
         {
-            // Calling SP with Dapper & MySqlConnector(https://github.com/mysql-net/MySqlConnector)
-            async Task<IEnumerable<User>> Execute(MySqlConnection conn)
+            async Task<IEnumerable<UserEntity>> Execute(MySqlConnection conn)
+            {
+                var parameters = GenerateParameters();
+
+                var result = await conn.ExecuteQueryAsync<UserEntity>
+                (
+                    StoreProcedureName.sp_User_GetUsers,
+                    parameters,
+                    _transaction
+                );
+
+                return result;
+            }
+
+            if (_testConnection == null)
+            {
+                using (var conn = new MySqlConnection(ConnString))
+                {
+                    await conn.OpenAsync();
+                    return await Execute(conn);
+                }
+            }
+
+            return await Execute(_testConnection);
+
+            #region Parameters
+
+            DynamicParameters GenerateParameters()
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("OUT_ReturnValue", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-                return await conn.QueryAsync<User>("sp_User_GetUsers", parameters, commandType: CommandType.StoredProcedure,
-                    transaction: _transaction);
+                parameters.Add("OUT_ReturnValue", dbType: DbType.Object, direction: ParameterDirection.Output);
+                return parameters;
             }
 
-            if (_testConnection == null)
-            {
-                using (var conn = new MySqlConnection(ConnString))
-                {
-                    await conn.OpenAsync();
-                    return await Execute(conn);
-                }
-            }
-            else
-            {
-                return await Execute(_testConnection);
-            }
+            #endregion
         }
 
-        public async Task<User> GetByPk(object userCode)
+        public async Task<UserEntity> GetByCode(object userCode)
         {
-            // Use Dapper & Dapper.Contrib
-            async Task<User> Execute(MySqlConnection conn)
+            async Task<UserEntity> Execute(MySqlConnection conn)
             {
-                try
-                {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("IN_Code", userCode);
-                    parameters.Add("OUT_ReturnValue", dbType: DbType.Object, direction: ParameterDirection.Output);
+                var parameters = GenerateParameters();
 
-                    return await conn.QuerySingleAsync<User>("sp_User_GetUser", parameters,
-                        commandType: CommandType.StoredProcedure,transaction:_transaction);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    return null;
-                }
+                var result = await conn.ExecuteQuerySingleAsync<UserEntity>
+                (
+                    StoreProcedureName.sp_User_GetUser,
+                    parameters,
+                    _transaction
+                );
+
+                return result;
             }
-            
+
             if (_testConnection == null)
             {
                 using (var conn = new MySqlConnection(ConnString))
@@ -205,10 +274,34 @@ namespace MockSite.Core.Repositories
                     return await Execute(conn);
                 }
             }
-            else
+
+            return await Execute(_testConnection);
+
+
+            #region Parameters
+
+            DynamicParameters GenerateParameters()
             {
-                return await Execute(_testConnection);
+                var parameters = new DynamicParameters();
+                parameters.Add("IN_Code", userCode, DbType.Int32, ParameterDirection.Input);
+                parameters.Add("OUT_ReturnValue", dbType: DbType.Object, direction: ParameterDirection.Output);
+                return parameters;
             }
+
+            #endregion
         }
+
+        #region StoreProcedureName
+
+        private struct StoreProcedureName
+        {
+            public static readonly string sp_User_CreateUser = "sp_User_CreateUser";
+            public static readonly string sp_User_DeleteUser = "sp_User_DeleteUser";
+            public static readonly string sp_User_GetUser = "sp_User_GetUser";
+            public static readonly string sp_User_GetUsers = "sp_User_GetUsers";
+            public static readonly string sp_User_UpdateUser = "sp_User_UpdateUser";
+        }
+
+        #endregion
     }
 }

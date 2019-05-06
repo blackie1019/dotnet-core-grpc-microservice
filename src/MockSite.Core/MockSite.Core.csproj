@@ -1,17 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dapper" Version="1.50.5" />
-      <PackageReference Include="Dapper.Contrib" Version="1.50.5" />
-      <PackageReference Include="MySqlConnector" Version="0.47.1" />
+        <PackageReference Include="Dapper" Version="1.50.5"/>
+        <PackageReference Include="MySqlConnector" Version="0.48.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+        <ProjectReference Include="..\MockSite.Common.Core\MockSite.Common.Core.csproj"/>
+        <ProjectReference Include="..\MockSite.Common.Data\MockSite.Common.Data.csproj"/>
     </ItemGroup>
 
 </Project>

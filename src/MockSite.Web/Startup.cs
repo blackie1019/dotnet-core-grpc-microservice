@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Infrastructure.Helpers;
+using Jaeger;
+using Jaeger.Samplers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MockSite.Common.Core.Utilities;
 using MockSite.Web.Consts;
 using MockSite.Web.Services;
+using OpenTracing;
+using OpenTracing.Util;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace MockSite.Web
@@ -24,6 +25,21 @@ namespace MockSite.Web
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //加入 OpenTracing
+            services.AddOpenTracing();
+            services.AddSingleton<ITracer>(serviceProvider =>
+            {
+                string serviceName = "MockSite.Web";
+                var tracer = new Tracer.Builder(serviceName)
+                    .WithSampler(new ConstSampler(true))
+                    .Build();
+                //註冊 Jaeger tracer
+                GlobalTracer.Register(tracer);
+ 
+                return tracer;
+            });
+            
+            
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
@@ -31,6 +47,10 @@ namespace MockSite.Web
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "MockSite API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
+                    { "Bearer", Enumerable.Empty<string>() },
+                });
             });
 
             // In production, the React files will be served from this directory
@@ -55,8 +75,26 @@ namespace MockSite.Web
                     };
                 });
             
+//            services.AddAuthentication(x =>
+//                {
+//                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//                })
+//                .AddJwtBearer(x =>
+//                {
+//                    x.RequireHttpsMetadata = false;
+//                    x.SaveToken = true;
+//                    x.TokenValidationParameters = new TokenValidationParameters
+//                    {
+//                        ValidateIssuerSigningKey = true,
+//                        IssuerSigningKey = symmetricSecurityKey,
+//                        ValidateIssuer = false,
+//                        ValidateAudience = false
+//                    };
+//                });
+
             // configure DI for application services
-            services.AddScoped<IAuthorizedService, AuthorizedService>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

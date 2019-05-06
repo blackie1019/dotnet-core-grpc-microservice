@@ -363,7 +363,7 @@ FakesAssemblies/
 
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
-# node_modules/
+node_modules/
 
 # Visual Studio 6 build log
 *.plg
@@ -433,9 +433,10 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-# End of https://www.gitignore.io/api/cake,visualstudio,jetbrains+all,visualstudiocode
+# SonarQube
+.sonarqube/
 
-# Special for Mock Project
-package/
-domainpublish/
-webpublish/
+# Misc.
+.DS_Store
+
+# End of https://www.gitignore.io/api/cake,visualstudio,jetbrains+all,visualstudiocode

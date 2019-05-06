@@ -10,7 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSite.DomainService", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSite.Message", "src\MockSite.Message\MockSite.Message.csproj", "{4AC61773-001E-4820-85A4-8F883A9B2D1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{5049C566-A653-4697-8FF9-131D20C3C256}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSite.Common.Core", "src\MockSite.Common.Core\MockSite.Common.Core.csproj", "{D952F22E-4A77-42AA-9994-19339B509276}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSite.Common.Data", "src\MockSite.Common.Data\MockSite.Common.Data.csproj", "{90520892-0E45-47FE-AE14-C3D4B9981359}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockSite.Common.Logging", "src\MockSite.Common.Logging\MockSite.Common.Logging.csproj", "{BE9AD49C-76EF-41CF-9122-C9DE654D47B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +46,17 @@ Global
 		{5049C566-A653-4697-8FF9-131D20C3C256}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5049C566-A653-4697-8FF9-131D20C3C256}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5049C566-A653-4697-8FF9-131D20C3C256}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D952F22E-4A77-42AA-9994-19339B509276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D952F22E-4A77-42AA-9994-19339B509276}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D952F22E-4A77-42AA-9994-19339B509276}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D952F22E-4A77-42AA-9994-19339B509276}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90520892-0E45-47FE-AE14-C3D4B9981359}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90520892-0E45-47FE-AE14-C3D4B9981359}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90520892-0E45-47FE-AE14-C3D4B9981359}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90520892-0E45-47FE-AE14-C3D4B9981359}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE9AD49C-76EF-41CF-9122-C9DE654D47B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE9AD49C-76EF-41CF-9122-C9DE654D47B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE9AD49C-76EF-41CF-9122-C9DE654D47B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE9AD49C-76EF-41CF-9122-C9DE654D47B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
