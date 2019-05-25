@@ -7,9 +7,9 @@ namespace MockSite.Core.Services
 {
     public interface IUserService
     {
-        Task Create(UserDTO userDTO);
-        Task Update(UserDTO userDTO);
-        Task Delete(UserDTO userDTO);
+        Task Create(UserDTO userDto);
+        Task Update(UserDTO userDto);
+        Task Delete(UserDTO userDto);
         Task<UserEntity> GetByCode(int code);
         Task<IEnumerable<UserEntity>> GetAll();
     }

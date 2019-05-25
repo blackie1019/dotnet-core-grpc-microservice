@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Grpc.Core;
+using MethodTimer;
 using MockSite.Core.DTOs;
 using MockSite.Core.Services;
 using MockSite.Message;
@@ -17,6 +18,7 @@ namespace MockSite.DomainService
             _coreService = service;
         }
 
+        [Time]
         public override async Task<ResponseBase> Create(User request, ServerCallContext context)
         {
             var result = new ResponseBase();
@@ -38,6 +40,7 @@ namespace MockSite.DomainService
             return result;
         }
 
+        [Time]
         public override async Task<ResponseBase> Update(User request, ServerCallContext context)
         {
             var result = new ResponseBase();
@@ -59,6 +62,7 @@ namespace MockSite.DomainService
             return result;
         }
 
+        [Time]
         public override async Task<ResponseBase> Delete(UserCode request, ServerCallContext context)
         {
             var result = new ResponseBase();
@@ -75,6 +79,7 @@ namespace MockSite.DomainService
             return result;
         }
 
+        [Time]
         public override async Task<User> Get(UserCode request, ServerCallContext context)
         {
             try
@@ -94,6 +99,7 @@ namespace MockSite.DomainService
             }
         }
 
+        [Time]
         public override async Task<Users> GetAll(Empty request, ServerCallContext context)
         {
             try

@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MockSite.Common.Core.Constants.DomainService;
 using MockSite.Common.Core.Utilities;
 using MockSite.Core.Repositories;
@@ -7,6 +9,7 @@ using MockSite.DomainService;
 using MockSite.Message;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using NSubstitute;
 
 namespace MockSite.Test
 {
@@ -14,10 +17,17 @@ namespace MockSite.Test
     [TestFixture]
     public class SportTest
     {
-        [SetUp]
+        private ILogger<UserRepository> logger;
+        private IConfiguration config;
+
+
+        [OneTimeSetUp]
         public void SetUp()
         {
-
+            logger = Substitute.For<ILogger<UserRepository>>();
+            config = Substitute.For<IConfiguration>();
+            config.GetSection(DbConnectionConst.TestKey).Value
+                .Returns("Server=localhost; Port=3326; Database=TestDB;Uid=root;Pwd=pass.123;");
         }
 
         [Test]
@@ -37,13 +47,13 @@ namespace MockSite.Test
 
             // Action
             using (var testConnection =
-                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
+                new MySqlConnection(ConsulSettingHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
             {
                 await testConnection.OpenAsync();
                 using (var transaction = testConnection.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
                 {
                     var serviceImpl = GetServiceImpl(testConnection, transaction);
-                    var result = await serviceImpl.Create(expected, null);
+                    await serviceImpl.Create(expected, null);
                     actual = await serviceImpl.Get(new UserCode {Code = code}, null);
                     transaction.Rollback();
                 }
@@ -73,7 +83,7 @@ namespace MockSite.Test
 
             // Action
             using (var testConnection =
-                new MySqlConnection(AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
+                new MySqlConnection(ConsulSettingHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey)))
             {
                 await testConnection.OpenAsync();
                 using (var transaction = testConnection.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
@@ -123,12 +133,13 @@ namespace MockSite.Test
 
         private UserServiceImpl GetServiceImpl()
         {
-            return new UserServiceImpl(new Core.Services.UserService(new UserRepository()));
+            return new UserServiceImpl(new Core.Services.UserService(new UserRepository(logger, config)));
         }
 
         private UserServiceImpl GetServiceImpl(MySqlConnection connection, MySqlTransaction transaction)
         {
-            return new UserServiceImpl(new Core.Services.UserService(new UserRepository(connection, transaction)));
+            return new UserServiceImpl(
+                new Core.Services.UserService(new UserRepository(logger, config, connection, transaction)));
         }
 
         #endregion

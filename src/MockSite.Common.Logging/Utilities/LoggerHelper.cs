@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using MockSite.Common.Logging.Enums;
 using MockSite.Common.Logging.Utilities.LogDetail;
 
@@ -25,6 +26,7 @@ namespace MockSite.Common.Logging.Utilities
 
         #region Debug
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Debug(string message)
         {
             if (_service != null)
@@ -38,6 +40,7 @@ namespace MockSite.Common.Logging.Utilities
 
         #region Info
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Info(string message)
         {
             if (_service != null)
@@ -59,6 +62,7 @@ namespace MockSite.Common.Logging.Utilities
 
         #region Error
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(string message)
         {
             if (_service != null)
@@ -67,7 +71,8 @@ namespace MockSite.Common.Logging.Utilities
                 _service.Error(detail);
             }
         }
-
+        
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(ErrorDetail detail)
         {
             if (_service != null)
@@ -75,7 +80,8 @@ namespace MockSite.Common.Logging.Utilities
                 _service.Error(detail);
             }
         }
-
+        
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(Exception exception)
         {
             if (_service != null)
@@ -85,6 +91,7 @@ namespace MockSite.Common.Logging.Utilities
             }
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(string message, Exception exception)
         {
             if (_service != null)
@@ -125,36 +132,43 @@ namespace MockSite.Common.Logging.Utilities
 
         #endregion
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public DebugDetail GetDebugDetail(string message)
         {
             return new DebugDetail {Message = message};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public InfoDetail GetInfoDetail(string message)
         {
             return new InfoDetail {Message = message};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public ErrorDetail GetExceptionDetail(string message)
         {
             return new ErrorDetail {Message = message};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public ErrorDetail GetExceptionDetail(Exception exception)
         {
             return new ErrorDetail {StackTrace = exception.ToString()};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public ErrorDetail GetExceptionDetail(string message, Exception exception)
         {
             return new ErrorDetail {Message = message, StackTrace = exception.ToString()};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public PerformanceDetail GetPerformanceDetail(string message)
         {
             return new PerformanceDetail {Message = message};
         }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public PerformanceDetail GetPerformanceDetail()
         {
             return new PerformanceDetail();

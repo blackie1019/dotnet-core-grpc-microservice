@@ -274,7 +274,7 @@ namespace MockSite.Message {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            code_ = (global::MockSite.Message.ResponseCode) input.ReadEnum();
+            Code = (global::MockSite.Message.ResponseCode) input.ReadEnum();
             break;
           }
         }

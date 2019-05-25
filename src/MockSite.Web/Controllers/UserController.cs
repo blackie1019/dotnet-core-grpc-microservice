@@ -1,37 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Grpc.Core;
-using Grpc.Core.Interceptors;
-using Jaeger;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using MockSite.Common.Core.Constants.DomainService;
-using MockSite.Common.Core.Utilities;
 using MockSite.Message;
 using MockSite.Web.Models;
-using OpenTracing.Contrib.Grpc.Interceptors;
-using OpenTracing.Util;
 
 namespace MockSite.Web.Controllers
 {
-    [Authorize]
     [Route("api/[Controller]")]
     public class UserController : ControllerBase
     {
         private readonly UserService.UserServiceClient _serviceClient;
 
-        public UserController()
+        public UserController(UserService.UserServiceClient serviceClient)
         {
-            var tracer = GlobalTracer.Instance;
-            ClientTracingInterceptor tracingInterceptor = new ClientTracingInterceptor(tracer);
-
-            var host = AppSettingsHelper.Instance.GetValueFromKey(HostNameConst.TestKey);
-            var port = AppSettingsHelper.Instance.GetValueFromKey(PortConst.TestKey);
-
-            var channel = new Channel($"{host}:{port}", ChannelCredentials.Insecure);
-            _serviceClient = new UserService.UserServiceClient(channel.Intercept(tracingInterceptor));
+            _serviceClient = serviceClient;
         }
 
         [HttpPost("CreateUser")]

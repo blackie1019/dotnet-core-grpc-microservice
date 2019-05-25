@@ -1,0 +1,16 @@
+{
+  "AppSettings": {
+    "MachineNumber": "1",
+    "ApplicationName": "MockSite"
+  },
+  "Aop":{
+    "PerformanceInterceptor": "true"
+  },
+  "DomainService": {
+    "Test": {
+      "HostName": "localhost",
+      "Port": "15001",
+      "DbConnection": "Server=localhost; Port=3326; Database=TestDB;Uid=root;Pwd=pass.123;"
+    }
+  }
+}

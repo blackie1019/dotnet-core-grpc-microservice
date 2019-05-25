@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JWT" Version="4.0.0" />
+        <PackageReference Include="JWT" Version="5.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
         <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.5.0" />

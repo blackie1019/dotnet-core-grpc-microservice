@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Grpc.Core;
+using Grpc.Core.Interceptors;
 using Jaeger;
 using Jaeger.Samplers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,10 +12,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MockSite.Common.Core.Constants.DomainService;
 using MockSite.Common.Core.Utilities;
 using MockSite.Web.Consts;
 using MockSite.Web.Services;
 using OpenTracing;
+using OpenTracing.Contrib.Grpc.Interceptors;
 using OpenTracing.Util;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -75,26 +79,18 @@ namespace MockSite.Web
                     };
                 });
             
-//            services.AddAuthentication(x =>
-//                {
-//                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//                })
-//                .AddJwtBearer(x =>
-//                {
-//                    x.RequireHttpsMetadata = false;
-//                    x.SaveToken = true;
-//                    x.TokenValidationParameters = new TokenValidationParameters
-//                    {
-//                        ValidateIssuerSigningKey = true,
-//                        IssuerSigningKey = symmetricSecurityKey,
-//                        ValidateIssuer = false,
-//                        ValidateAudience = false
-//                    };
-//                });
 
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();
+            
+            // Register gRPC Service
+            var userHost = $"{ConsulSettingHelper.Instance.GetValueFromKey(HostNameConst.TestKey)}:{ConsulSettingHelper.Instance.GetValueFromKey(PortConst.TestKey)}";
+
+            var tracerInstance = GlobalTracer.Instance;
+            ClientTracingInterceptor tracingInterceptor = new ClientTracingInterceptor(tracerInstance);
+
+            services.AddSingleton(
+                new MockSite.Message.UserService.UserServiceClient(CreateKeepAliveWithoutCallChannel(userHost).Intercept(tracingInterceptor)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,6 +144,16 @@ namespace MockSite.Web
                     spa.UseReactDevelopmentServer("start");
                 });
             }
+        }
+        
+        private Channel CreateKeepAliveWithoutCallChannel(string hostString)
+        {
+            return new Channel(hostString, ChannelCredentials.Insecure, new List<ChannelOption>()
+            {
+                new ChannelOption("grpc.keepalive_permit_without_calls", 1),
+                new ChannelOption("grpc.http2.max_pings_without_data", 0),
+                new ChannelOption("grpc.keepalive_time_ms", 1000 * 60 * 20)
+            });
         }
     }
 }

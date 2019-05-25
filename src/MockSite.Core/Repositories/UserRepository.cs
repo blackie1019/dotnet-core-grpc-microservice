@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using MockSite.Common.Core.Utilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MockSite.Common.Data.Utilities;
 using MockSite.Core.DTOs;
 using MockSite.Core.Entities;
@@ -16,18 +17,23 @@ namespace MockSite.Core.Repositories
     {
         private readonly MySqlConnection _testConnection;
         private readonly MySqlTransaction _transaction;
+        private readonly IConfiguration _config;
 
-        private static readonly string ConnString =
-            AppSettingsHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey);
-            
+        private readonly string connString;
+        private readonly ILogger _logger;
 
-        public UserRepository(MySqlConnection conn = null, MySqlTransaction transaction = null)
+
+        public UserRepository(ILogger<UserRepository> logger, IConfiguration config, MySqlConnection conn = null, MySqlTransaction transaction = null)
         {
             _testConnection = conn;
             _transaction = transaction;
+            _config = config;
+            connString = config.GetSection(DbConnectionConst.TestKey).Value;
+            _logger = logger;
+            _logger.LogInformation("log init");
         }
 
-        public async Task Create(UserDTO userDTO)
+        public async Task Create(UserDTO userDto)
         {
             async Task Execute(MySqlConnection conn)
             {
@@ -41,14 +47,14 @@ namespace MockSite.Core.Repositories
 
             if (_testConnection == null)
             {
-                using (var conn = new MySqlConnection(ConnString))
+                using (var conn = new MySqlConnection(connString))
                 {
                     await conn.OpenAsync();
                     await Execute(conn);
                 }
             }
-
-            await Execute(_testConnection);
+            else
+                await Execute(_testConnection);
 
             #region - Parameters -
 
@@ -59,21 +65,21 @@ namespace MockSite.Core.Repositories
                     new MySqlParameter
                     {
                         ParameterName = "IN_Code",
-                        Value = userDTO.Code,
+                        Value = userDto.Code,
                         MySqlDbType = MySqlDbType.Int32,
                         Direction = ParameterDirection.Input
                     },
                     new MySqlParameter
                     {
                         ParameterName = "IN_DisplayKey",
-                        Value = userDTO.DisplayKey,
+                        Value = userDto.DisplayKey,
                         MySqlDbType = MySqlDbType.VarChar,
                         Direction = ParameterDirection.Input
                     },
                     new MySqlParameter
                     {
                         ParameterName = "IN_OrderNo",
-                        Value = userDTO.OrderNo,
+                        Value = userDto.OrderNo,
                         MySqlDbType = MySqlDbType.Int32,
                         Direction = ParameterDirection.Input
                     },
@@ -91,7 +97,7 @@ namespace MockSite.Core.Repositories
             #endregion
         }
 
-        public async Task Update(UserDTO userDTO)
+        public async Task Update(UserDTO userDto)
         {
             async Task Execute(MySqlConnection conn)
             {
@@ -107,7 +113,7 @@ namespace MockSite.Core.Repositories
 
             if (_testConnection == null)
             {
-                using (var conn = new MySqlConnection(ConnString))
+                using (var conn = new MySqlConnection(connString))
                 {
                     await conn.OpenAsync();
                     await Execute(conn);
@@ -127,21 +133,21 @@ namespace MockSite.Core.Repositories
                     new MySqlParameter
                     {
                         ParameterName = "IN_Code",
-                        Value = userDTO.Code,
+                        Value = userDto.Code,
                         MySqlDbType = MySqlDbType.String,
                         Direction = ParameterDirection.Input
                     },
                     new MySqlParameter
                     {
                         ParameterName = "IN_DisplayKey",
-                        Value = userDTO.DisplayKey,
+                        Value = userDto.DisplayKey,
                         MySqlDbType = MySqlDbType.Int16,
                         Direction = ParameterDirection.Input
                     },
                     new MySqlParameter
                     {
                         ParameterName = "IN_OrderNo",
-                        Value = userDTO.OrderNo,
+                        Value = userDto.OrderNo,
                         MySqlDbType = MySqlDbType.Int16,
                         Direction = ParameterDirection.Input
                     },
@@ -158,7 +164,7 @@ namespace MockSite.Core.Repositories
             #endregion
         }
 
-        public async Task Delete(UserDTO userDTO)
+        public async Task Delete(UserDTO userDto)
         {
             async Task Execute(MySqlConnection conn)
             {
@@ -174,7 +180,7 @@ namespace MockSite.Core.Repositories
 
             if (_testConnection == null)
             {
-                using (var conn = new MySqlConnection(ConnString))
+                using (var conn = new MySqlConnection(connString))
                 {
                     await conn.OpenAsync();
                     await Execute(conn);
@@ -194,7 +200,7 @@ namespace MockSite.Core.Repositories
                     new MySqlParameter
                     {
                         ParameterName = "IN_Code",
-                        Value = userDTO.Code,
+                        Value = userDto.Code,
                         MySqlDbType = MySqlDbType.Int32,
                         Direction = ParameterDirection.Input
                     },
@@ -229,7 +235,7 @@ namespace MockSite.Core.Repositories
 
             if (_testConnection == null)
             {
-                using (var conn = new MySqlConnection(ConnString))
+                using (var conn = new MySqlConnection(connString))
                 {
                     await conn.OpenAsync();
                     return await Execute(conn);
@@ -268,7 +274,7 @@ namespace MockSite.Core.Repositories
 
             if (_testConnection == null)
             {
-                using (var conn = new MySqlConnection(ConnString))
+                using (var conn = new MySqlConnection(connString))
                 {
                     await conn.OpenAsync();
                     return await Execute(conn);

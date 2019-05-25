@@ -3,19 +3,24 @@ version: '2'
 services: 
   TestDB:
     image: mariadb
-  
     ports:
       - "3326:3306"
     environment:
       MYSQL_ROOT_PASSWORD: pass.123
     volumes:
       - "./dump:/docker-entrypoint-initdb.d"
-    
     stdin_open: true
     tty: true
-  
+    
   Jaeger:
     image: jaegertracing/all-in-one
     ports: 
       - "6831:6831/udp"
       - "16686:16686"
+
+  consul-sb-mocksite:
+    container_name: consul-sb-mocksite
+    image: consul:latest
+    ports:
+      - "18500:8500"
+    command: "agent -dev -ui -client=0.0.0.0 -bind=0.0.0.0"

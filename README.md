@@ -5,12 +5,15 @@
 ---
 
 MockSite Project Structure
+
 - Src
   - MockSite.Common.Core
     - 放置 Constant 設定
+    - 放置 Consul 相關設定
     - 放置狀態碼列舉值
     - 放置 Request & Response Base Model
     - 放置設定檔讀取的 Helper 類別
+    - 放置 Consul 內設定值的 Helper 類別
   - MockSite.Common.Data
     - 資料存取層的封裝
   - MockSite.Common.Logging
@@ -22,9 +25,10 @@ MockSite Project Structure
   - MockSite.DomainService
     - gRPC Service 實作
     - gRPC service binding
-    - 用 Unity 解析 UserService 
+    - 用 Unity 解析 UserService
     - 用 Unity 定義解析時使用 UserService/Performanceinterceptor/UserRepository
     - 用 Unity 定義如何用 AOP 監測執行時間
+    - 讀取存放在 Consul MockSite 資料夾的環境變數
   - MockSite.Message
     - 定義 gRPC 所用的proto檔路徑與產出路徑
     - gRPC 產生的類別
@@ -38,8 +42,8 @@ MockSite Project Structure
   - 設定 Port 導向
   - 設定 mariadb password
   - 設定容器卷
+  - 設定 Consul 的連線資訊
   - dump 目錄內的 script 會自動執行初始資料
-
 
 ## Installation Prerequisite ##
 
@@ -65,17 +69,19 @@ MockSite Project Structure
     ```bash
     dotnet dev-certs https --trust
     ```
+
 5. Node
 
     Path of front-end : `/src/MockSite.Web/ClientApp`
-    
+
     Install [node](https://nodejs.org/en/download/) in your system, and do 
-    
+
     ```bash
     npm install
     ```
 
 ## Local Initialize Steps
+
 ### Step 1 - DB Restore
 
 Please see [database preparation README file](database/README.md) on DataBase folder.
@@ -147,7 +153,6 @@ dotnet gitversion > version.json
         });
     ```
 
-
 ## Develop Steps
 
 ### 1. Start Database and Jaeger ###
@@ -158,6 +163,8 @@ Move to directory where docker-compose.yml exists and run containers.
 
     docker-compose up -d
 
+![db-up](images/db-up.png)
+
 ### 2. Host gRPC Domain Service ###
 
 Path of Domain Service: `/src/MockSite.DomainService`
@@ -166,7 +173,9 @@ Please run below command to run console for Domain Service:
 
     dotnet run
 
-### 3. Run BackOffice
+![ds-run](images/ds-run.png)
+
+### 3. Run Website
 
 Path of front-end: `/src/MockSite.Web/ClientApp`
 
@@ -174,13 +183,33 @@ Move to front-end directory and run commands below.
 
     npm install
 
-    npm start
+Path of Web Service: `/src/MockSite.Web`
+
+Please run below command to host website for ASP.NET Core and NodeJS (for React development only):
+
+    dotnet run
+
+![web-run](images/web-run.png)
 
 ### 4. Jaeger UI
 
 Lanuch [Jaeger UI](http://localhost:16686) with port 16686.
 
 Please reference [Jaeger README file](Jaeger.md) to get further information.
+
+![jaeger-log](images/jaeger-log.png)
+
+### 5. Consul UI
+
+Lanuch [Consul UI](http://localhost:18500) with port 18500.
+
+#### Edit Configuration
+
+1. Click Key/Value button to view configuration page
+2. Choose **MockSite**
+![Consul Main Page](images/Consul-1.jpg)
+3. Edit the json in text box and Click **Save** button.
+![Consul config editor](images/Consul-2.jpg)
 
 ---
 
@@ -198,11 +227,3 @@ Run or Debug from Rider/Dotnet CLI/vscode to host `SPA Service` for React Develo
 ### Additional: gRPC development
 
 Please reference [gRPC development README file](protos/README.md) if you try to add new method in Domain Service and explore to Application to calling to support front-end CRUD of data.
-
----
-
-## Docker and Docker-compose(Still fix problem...)
-
-Using `deploy.sh` to build entire environment(exclude Database) with `docker-compose`
-
----

@@ -4,10 +4,6 @@ namespace MockSite.Common.Core.Models
 {
     public class RequestBaseModel<T>
     {
-        public RequestBaseModel()
-        {
-
-        }
 
         public Dictionary<string, string> Carrier { get; set; }
 
