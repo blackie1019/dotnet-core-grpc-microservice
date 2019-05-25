@@ -207,9 +207,12 @@ Lanuch [Consul UI](http://localhost:18500) with port 18500.
 
 1. Click Key/Value button to view configuration page
 2. Choose **MockSite**
-![Consul Main Page](images/Consul-1.jpg)
+
+    ![Consul Main Page](images/consul-1.jpg)
+
 3. Edit the json in text box and Click **Save** button.
-![Consul config editor](images/Consul-2.jpg)
+
+    ![Consul config editor](images/Consul-2.jpg)
 
 ---
 
@@ -220,7 +223,6 @@ Lanuch [Consul UI](http://localhost:18500) with port 18500.
 Path of ASP.NET Core solution: `/MockSite.sln`
 
 Run or Debug from Rider/Dotnet CLI/vscode to host `SPA Service` for React Development
-
 
 ---
 
