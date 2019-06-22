@@ -1,6 +1,10 @@
+#region
+
 using Jaeger;
 using Jaeger.Samplers;
 using Microsoft.Extensions.Logging;
+
+#endregion
 
 namespace MockSite.Message
 {
@@ -8,12 +12,12 @@ namespace MockSite.Message
     {
         public static Tracer InitTracer(string serviceName, ILoggerFactory loggerFactory)
         {
-            Configuration.SamplerConfiguration samplerConfiguration = new Configuration.SamplerConfiguration(loggerFactory)
+            var samplerConfiguration = new Configuration.SamplerConfiguration(loggerFactory)
                 .WithType(ConstSampler.Type)
                 .WithParam(1);
-            Configuration.ReporterConfiguration reporterConfiguration = new Configuration.ReporterConfiguration(loggerFactory)
+            var reporterConfiguration = new Configuration.ReporterConfiguration(loggerFactory)
                 .WithLogSpans(true);
-            return (Tracer)new Configuration(serviceName, loggerFactory)
+            return (Tracer) new Configuration(serviceName, loggerFactory)
                 .WithSampler(samplerConfiguration)
                 .WithReporter(reporterConfiguration)
                 .GetTracer();

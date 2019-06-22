@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Data;
 using System.Data.Common;
+
+#endregion
 
 namespace MockSite.Common.Data
 {

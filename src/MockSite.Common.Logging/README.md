@@ -6,7 +6,7 @@
 2. 程式碼加入
 
        ```csharp
-            LoggerHelper.Instance.SetLogProvider(SeriLogProvider.Instance);
+            LoggerHelper.Instance.SetLogProvider(SerilogProvider.Instance);
         ```
 
 ## Logger 架構 ##

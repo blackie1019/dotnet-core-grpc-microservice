@@ -1,0 +1,59 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "plugins": ["import", "react", "react-hooks", "react-extra"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "settings": {
+    "import/core-modules": ["redux-saga/effects"],
+    "react": { "version": "detect" }
+  },
+  "globals": { "app": true },
+  "rules": {
+    "import/no-commonjs": 2,
+    "import/order": 1,
+    "no-console": 1,
+    "no-unused-vars": [2, { "ignoreRestSiblings": true }],
+    "no-var": 2,
+    "prettier/prettier": 2,
+    "react/no-typos": 1,
+    "react/no-unused-prop-types": 2,
+    "react/no-unused-state": 2,
+    "react/prop-types": [
+      2,
+      {
+        "ignore": [
+          "children",
+          "classes",
+          "className",
+          "history",
+          "location",
+          "match",
+          "style"
+        ]
+      }
+    ],
+    "react-extra/no-undefined-effect-deps": 2,
+    "react-hooks/rules-of-hooks": 2,
+    "quotes": [2, "single", { "avoidEscape": true }]
+  },
+  "overrides": [
+    {
+      "files": "{config,script}/**/*.js",
+      "rules": {
+        "import/no-commonjs": 0
+      }
+    },
+    {
+      "files": "src/**/*.spec.js",
+      "env": { "jest": true }
+    }
+  ]
+}

@@ -1,7 +1,11 @@
+#region
+
 using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+
+#endregion
 
 namespace MockSite.Common.Core.Utilities
 {
@@ -13,17 +17,16 @@ namespace MockSite.Common.Core.Utilities
 
         private readonly IConfigurationBuilder _builder;
 
-        private static readonly Lazy<AppSettingsHelper> Lazy =
+        private static readonly Lazy<AppSettingsHelper> _lazy =
             new Lazy<AppSettingsHelper>(() => new AppSettingsHelper());
 
         public static AppSettingsHelper Instance
         {
-            get { return Lazy.Value; }
+            get { return _lazy.Value; }
         }
 
-        AppSettingsHelper()
+        private AppSettingsHelper()
         {
-
             var basePath = Directory.GetCurrentDirectory();
             _builder = new ConfigurationBuilder()
                 .SetFileProvider(new PhysicalFileProvider(basePath))

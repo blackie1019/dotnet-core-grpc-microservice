@@ -1,98 +1,116 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Grpc.Core.Interceptors;
-using Jaeger;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MockSite.Common.Core.Constants.DomainService;
 using MockSite.Common.Core.Utilities;
+using MockSite.Common.Logging;
 using MockSite.Common.Logging.Utilities;
+using MockSite.Core.Interfaces;
 using MockSite.Core.Repositories;
-using MockSite.Core.Services;
 using MockSite.DomainService.Utilities;
 using MockSite.Message;
 using OpenTracing.Contrib.Grpc.Interceptors;
 using Serilog;
 using Serilog.AspNetCore;
-using UserService = MockSite.Message.UserService;
+
+#endregion
 
 namespace MockSite.DomainService
 {
-    class Program
+    public class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             InitialConsulConfig();
 
             var builder = new HostBuilder()
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddJsonFile("appsettings.json", optional: true);
-                    config.AddEnvironmentVariables();
-                    
-                    if (args != null)
+                    .ConfigureHostConfiguration(configHost => { configHost.AddEnvironmentVariables("ASPNETCORE_"); }
+                    )
+                    .ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        config.AddCommandLine(args);
-                    }
+                        config.AddEnvironmentVariables();
+                        config.AddJsonFile("appsettings.json", true);
+                        config.AddJsonFile(
+                            $"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
+                            true
+                        );
 
-                    var appconfig=config.Build();
-                    
+                        if (args != null)
+                        {
+                            config.AddCommandLine(args);
+                        }
 
-                    var consulIp = appconfig[ConsulConfigConst.ConsulIp];
-                    var consulPort = appconfig[ConsulConfigConst.ConsulPort];
-                    var consulModule = appconfig[ConsulConfigConst.ConsulModule];
-                    
-                    // 從 consul kv store 取得 config
-                    var configProvider = ConfigHelper.GetConfig(
-                        $"http://{consulIp}:{consulPort}/v1/kv/",
-                        consulModule.Split(','));
-                    // 將 config 塞入 application 中
-                    IConfiguration configfromconsul = new ConfigurationBuilder()
-                        .AddJsonFile(configProvider, "none.json", false, false)
-                        .Build();
-                    config.AddConfiguration(configfromconsul);
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    var configInstance = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("serilogsettings.json")
-                        .Build();
-                    
-                    Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(configInstance)
-                        .CreateLogger();
-                    
-                    services.AddOptions();
-                    services.AddSingleton<ILoggerFactory>(a => new SerilogLoggerFactory(Log.Logger, false));
+                        var appConfig = config.Build();
+                        var consulIp = appConfig[ConsulConfigConst.ConsulIp];
+                        var consulPort = appConfig[ConsulConfigConst.ConsulPort];
+                        var consulModule = appConfig[ConsulConfigConst.ConsulModule];
 
-                    ILoggerFactory loggerFactory = new LoggerFactory().AddConsole();
-                    var serviceName = "MockSite.DomainService";
-                    Tracer tracer = TracingHelper.InitTracer(serviceName, loggerFactory);
-                    ServerTracingInterceptor tracingInterceptor = new ServerTracingInterceptor(tracer);
+                        // 從 consul kv store 取得 config
+                        var configProvider = ConfigHelper.GetConfig(
+                            $"http://{consulIp}:{consulPort}/v1/kv/",
+                            consulModule.Split(','));
 
+                        // 將 config 塞入 application 中
+                        IConfiguration configFromConsul = new ConfigurationBuilder()
+                            .AddJsonFile(configProvider, "none.json", false, false)
+                            .Build();
+                        config.AddConfiguration(configFromConsul);
+                    })
+                    .ConfigureServices((hostContext, services) =>
+                    {
+                        var configInstance = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("serilogsettings.json")
+                            .Build();
 
-                    var host = hostContext.Configuration.GetSection(HostNameConst.TestKey).Value;
-                    var port = Convert.ToInt32(hostContext.Configuration.GetSection(PortConst.TestKey).Value);
+                        var loggerCreator = new LoggerConfiguration()
+                            .ReadFrom.Configuration(configInstance);
+                        if (hostContext.HostingEnvironment.IsDevelopment())
+                        {
+                            loggerCreator.WriteTo.Console();
+                        }
 
-                    services.AddSingleton<UserService.UserServiceBase, UserServiceImpl>();
-                    services.AddSingleton<IUserService, MockSite.Core.Services.UserService>();
-                    services.AddSingleton<IRepository, MockSite.Core.Repositories.UserRepository>();
+                        Log.Logger = loggerCreator
+                            .CreateLogger();
 
+                        services.AddOptions();
+                        services.AddSingleton<ILoggerFactory>(a => new SerilogLoggerFactory(Log.Logger));
+                        services.AddSingleton<UserService.UserServiceBase, UserServiceImpl>();
+                        services.AddSingleton<IUserService, MockSite.Core.Services.UserService>();
+                        services.AddSingleton<IRepository, UserRepository>();
+                        services.AddSingleton<IMongoRepository, MongoUserRepository>();
+                        services.AddSingleton<IRedisRepository, RedisUserRepository>();
+                        services.AddSingleton<Common.Data.Utilities.RedisConnectHelper>();
 
-                    var Services = services.BuildServiceProvider();
+                        const string serviceName = "MockSite.DomainService";
+                        var serviceProvider = services.BuildServiceProvider();
+                        var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+                        var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                        var tracer = TracingHelper.InitTracer(serviceName, loggerFactory);
+                        var tracingInterceptor = new ServerTracingInterceptor(tracer);
+                        var host = hostContext.Configuration.GetSection(HostNameConst.TestKey).Value;
+                        var port = Convert.ToInt32(hostContext.Configuration.GetSection(PortConst.TestKey).Value);
 
-                    services.AddSingleton(
-                        new gRPCServer(host, port,
-                            Message.UserService.BindService(Services.GetRequiredService<UserService.UserServiceBase>())
-                                .Intercept(tracingInterceptor)
-                        ));
-                })
+                        logger.Info($"Initialize gRPC Server on  host:{host} and port:{port} ...");
+
+                        services.AddSingleton(
+                            new GrpcServer(host, port,
+                                UserService.BindService(
+                                        serviceProvider.GetRequiredService<UserService.UserServiceBase>())
+                                    .Intercept(tracingInterceptor)
+                            ));
+
+                        logger.Info($"gRPC Server ready to listening on {host}:{port}");
+                    })
                 ;
 
             await builder.RunConsoleAsync();
@@ -103,12 +121,10 @@ namespace MockSite.DomainService
             var consulIp = AppSettingsHelper.Instance.GetValueFromKey(ConsulConfigConst.ConsulIp);
             var consulPort = AppSettingsHelper.Instance.GetValueFromKey(ConsulConfigConst.ConsulPort);
             var consulModule = AppSettingsHelper.Instance.GetValueFromKey(ConsulConfigConst.ConsulModule);
-
             var client = new HttpClient {BaseAddress = new Uri($"http://{consulIp}:{consulPort}/v1/kv/")};
-
             var initConfigJson = File.ReadAllText(ConsulConfigConst.ConsulInitDataPath);
 
-            //將 config 內容打進 consul
+            // 將 config 內容打進 consul
             HttpContent contentPost = new StringContent(initConfigJson, Encoding.UTF8, "application/json");
 
             var result = client.PutAsync(consulModule, contentPost)

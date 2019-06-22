@@ -1,22 +1,25 @@
+#region
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using MockSite.Common.Logging.Enums;
 using MockSite.Common.Logging.Utilities.LogDetail;
 
+#endregion
+
 namespace MockSite.Common.Logging.Utilities
 {
     public sealed class LoggerHelper
     {
-        private static readonly Lazy<LoggerHelper> Lazy =
+        private static readonly Lazy<LoggerHelper> _lazy =
             new Lazy<LoggerHelper>(() => new LoggerHelper());
 
-        public static LoggerHelper Instance => Lazy.Value;
+        public static LoggerHelper Instance => _lazy.Value;
 
         private ILoggerService _service;
 
         private LoggerHelper()
         {
-
         }
 
         public void SetLogProvider(ILoggerService service)
@@ -71,7 +74,7 @@ namespace MockSite.Common.Logging.Utilities
                 _service.Error(detail);
             }
         }
-        
+
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(ErrorDetail detail)
         {
@@ -80,7 +83,7 @@ namespace MockSite.Common.Logging.Utilities
                 _service.Error(detail);
             }
         }
-        
+
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Error(Exception exception)
         {
@@ -109,21 +112,23 @@ namespace MockSite.Common.Logging.Utilities
         {
             if (_service != null)
             {
-                if (detail.Duration > 0 && detail.Rank == DurationRank.Unknow)
+                if (detail.Duration > 0 && detail.Rank == DurationRank.Unknown)
                 {
-                    if (detail.Duration > 0 && detail.Duration < 3*1000) // < 3 Seconds
+                    if (detail.Duration > 0 && detail.Duration < 3 * 1000) // < 3 Seconds
                     {
                         detail.Rank = DurationRank.Normal;
                     }
                     else if (detail.Duration >= 3000 && detail.Duration <= 10000) // 3~10 Seconds
                     {
                         detail.Rank = DurationRank.Slow;
-                    }else if (detail.Duration > 10000 && detail.Duration <= 30000) // 10~30 Seconds
+                    }
+                    else if (detail.Duration > 10000 && detail.Duration <= 30000) // 10~30 Seconds
                     {
                         detail.Rank = DurationRank.DamnSlow; // > 30 Seconds
-                    }else if (detail.Duration > 30000)
+                    }
+                    else if (detail.Duration > 30000)
                     {
-                        detail.Rank = DurationRank.FXXXSlow;
+                        detail.Rank = DurationRank.FxxxSlow;
                     }
                 }
                 _service.Performance(detail);

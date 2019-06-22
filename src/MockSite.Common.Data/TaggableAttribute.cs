@@ -1,4 +1,8 @@
+#region
+
 using System;
+
+#endregion
 
 namespace MockSite.Common.Data
 {

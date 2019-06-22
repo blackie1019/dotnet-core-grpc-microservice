@@ -24,21 +24,26 @@ namespace MockSite.Message {
     static UserMessageReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFVc2VyTWVzc2FnZS5wcm90bxIEVXNlciIHCgVFbXB0eSIwCgxSZXNwb25z",
-            "ZUJhc2USIAoEQ29kZRgBIAEoDjISLlVzZXIuUmVzcG9uc2VDb2RlIjkKBFVz",
-            "ZXISDAoEQ29kZRgBIAEoBRISCgpEaXNwbGF5S2V5GAIgASgJEg8KB09yZGVy",
-            "Tm8YAyABKAUiIgoFVXNlcnMSGQoFVmFsdWUYASADKAsyCi5Vc2VyLlVzZXIi",
-            "GAoIVXNlckNvZGUSDAoEQ29kZRgBIAEoBSovCgxSZXNwb25zZUNvZGUSCwoH",
-            "U3VjY2VzcxAAEhIKDEdlbmVyYWxFcnJvchC/hD1CE6oCEE1vY2tTaXRlLk1l",
-            "c3NhZ2ViBnByb3RvMw=="));
+            "ChFVc2VyTWVzc2FnZS5wcm90bxIHQWNjb3VudCIHCgVFbXB0eSIzCgxCYXNl",
+            "UmVzcG9uc2USIwoEQ29kZRgBIAEoDjIVLkFjY291bnQuUmVzcG9uc2VDb2Rl",
+            "Ij0KBFVzZXISCgoCSWQYASABKAUSDAoEQ29kZRgCIAEoCRIMCgROYW1lGAMg",
+            "ASgJEg0KBUVtYWlsGAQgASgJIiUKBVVzZXJzEhwKBVZhbHVlGAEgAygLMg0u",
+            "QWNjb3VudC5Vc2VyIh4KEFF1ZXJ5VXNlck1lc3NhZ2USCgoCSWQYASABKAUi",
+            "UAoRQ3JlYXRlVXNlck1lc3NhZ2USDAoEQ29kZRgBIAEoCRIMCgROYW1lGAIg",
+            "ASgJEg0KBUVtYWlsGAMgASgJEhAKCFBhc3N3b3JkGAQgASgJIjwKEVVwZGF0",
+            "ZVVzZXJNZXNzYWdlEgoKAklkGAEgASgFEgwKBE5hbWUYAiABKAkSDQoFRW1h",
+            "aWwYAyABKAkqLwoMUmVzcG9uc2VDb2RlEgsKB1N1Y2Nlc3MQABISCgxHZW5l",
+            "cmFsRXJyb3IQv4Q9QhOqAhBNb2NrU2l0ZS5NZXNzYWdlYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::MockSite.Message.ResponseCode), }, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.Empty), global::MockSite.Message.Empty.Parser, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.ResponseBase), global::MockSite.Message.ResponseBase.Parser, new[]{ "Code" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.User), global::MockSite.Message.User.Parser, new[]{ "Code", "DisplayKey", "OrderNo" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.BaseResponse), global::MockSite.Message.BaseResponse.Parser, new[]{ "Code" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.User), global::MockSite.Message.User.Parser, new[]{ "Id", "Code", "Name", "Email" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.Users), global::MockSite.Message.Users.Parser, new[]{ "Value" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.UserCode), global::MockSite.Message.UserCode.Parser, new[]{ "Code" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.QueryUserMessage), global::MockSite.Message.QueryUserMessage.Parser, new[]{ "Id" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.CreateUserMessage), global::MockSite.Message.CreateUserMessage.Parser, new[]{ "Code", "Name", "Email", "Password" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::MockSite.Message.UpdateUserMessage), global::MockSite.Message.UpdateUserMessage.Parser, new[]{ "Id", "Name", "Email" }, null, null, null)
           }));
     }
     #endregion
@@ -154,11 +159,11 @@ namespace MockSite.Message {
 
   }
 
-  public sealed partial class ResponseBase : pb::IMessage<ResponseBase> {
-    private static readonly pb::MessageParser<ResponseBase> _parser = new pb::MessageParser<ResponseBase>(() => new ResponseBase());
+  public sealed partial class BaseResponse : pb::IMessage<BaseResponse> {
+    private static readonly pb::MessageParser<BaseResponse> _parser = new pb::MessageParser<BaseResponse>(() => new BaseResponse());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ResponseBase> Parser { get { return _parser; } }
+    public static pb::MessageParser<BaseResponse> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -171,21 +176,21 @@ namespace MockSite.Message {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ResponseBase() {
+    public BaseResponse() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ResponseBase(ResponseBase other) : this() {
+    public BaseResponse(BaseResponse other) : this() {
       code_ = other.code_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ResponseBase Clone() {
-      return new ResponseBase(this);
+    public BaseResponse Clone() {
+      return new BaseResponse(this);
     }
 
     /// <summary>Field number for the "Code" field.</summary>
@@ -201,11 +206,11 @@ namespace MockSite.Message {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as ResponseBase);
+      return Equals(other as BaseResponse);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ResponseBase other) {
+    public bool Equals(BaseResponse other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -255,7 +260,7 @@ namespace MockSite.Message {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ResponseBase other) {
+    public void MergeFrom(BaseResponse other) {
       if (other == null) {
         return;
       }
@@ -308,9 +313,10 @@ namespace MockSite.Message {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public User(User other) : this() {
+      id_ = other.id_;
       code_ = other.code_;
-      displayKey_ = other.displayKey_;
-      orderNo_ = other.orderNo_;
+      name_ = other.name_;
+      email_ = other.email_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -319,36 +325,47 @@ namespace MockSite.Message {
       return new User(this);
     }
 
-    /// <summary>Field number for the "Code" field.</summary>
-    public const int CodeFieldNumber = 1;
-    private int code_;
+    /// <summary>Field number for the "Id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private int id_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Code {
+    public int Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Code" field.</summary>
+    public const int CodeFieldNumber = 2;
+    private string code_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Code {
       get { return code_; }
       set {
-        code_ = value;
+        code_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
-    /// <summary>Field number for the "DisplayKey" field.</summary>
-    public const int DisplayKeyFieldNumber = 2;
-    private string displayKey_ = "";
+    /// <summary>Field number for the "Name" field.</summary>
+    public const int NameFieldNumber = 3;
+    private string name_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string DisplayKey {
-      get { return displayKey_; }
+    public string Name {
+      get { return name_; }
       set {
-        displayKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
-    /// <summary>Field number for the "OrderNo" field.</summary>
-    public const int OrderNoFieldNumber = 3;
-    private int orderNo_;
+    /// <summary>Field number for the "Email" field.</summary>
+    public const int EmailFieldNumber = 4;
+    private string email_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int OrderNo {
-      get { return orderNo_; }
+    public string Email {
+      get { return email_; }
       set {
-        orderNo_ = value;
+        email_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -365,18 +382,20 @@ namespace MockSite.Message {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (Id != other.Id) return false;
       if (Code != other.Code) return false;
-      if (DisplayKey != other.DisplayKey) return false;
-      if (OrderNo != other.OrderNo) return false;
+      if (Name != other.Name) return false;
+      if (Email != other.Email) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Code != 0) hash ^= Code.GetHashCode();
-      if (DisplayKey.Length != 0) hash ^= DisplayKey.GetHashCode();
-      if (OrderNo != 0) hash ^= OrderNo.GetHashCode();
+      if (Id != 0) hash ^= Id.GetHashCode();
+      if (Code.Length != 0) hash ^= Code.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Email.Length != 0) hash ^= Email.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -390,17 +409,21 @@ namespace MockSite.Message {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Code != 0) {
+      if (Id != 0) {
         output.WriteRawTag(8);
-        output.WriteInt32(Code);
+        output.WriteInt32(Id);
       }
-      if (DisplayKey.Length != 0) {
+      if (Code.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(DisplayKey);
+        output.WriteString(Code);
       }
-      if (OrderNo != 0) {
-        output.WriteRawTag(24);
-        output.WriteInt32(OrderNo);
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Email.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Email);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -410,14 +433,17 @@ namespace MockSite.Message {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Code != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Code);
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Id);
       }
-      if (DisplayKey.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(DisplayKey);
+      if (Code.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Code);
       }
-      if (OrderNo != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(OrderNo);
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Email.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Email);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -430,14 +456,17 @@ namespace MockSite.Message {
       if (other == null) {
         return;
       }
-      if (other.Code != 0) {
+      if (other.Id != 0) {
+        Id = other.Id;
+      }
+      if (other.Code.Length != 0) {
         Code = other.Code;
       }
-      if (other.DisplayKey.Length != 0) {
-        DisplayKey = other.DisplayKey;
+      if (other.Name.Length != 0) {
+        Name = other.Name;
       }
-      if (other.OrderNo != 0) {
-        OrderNo = other.OrderNo;
+      if (other.Email.Length != 0) {
+        Email = other.Email;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -451,15 +480,19 @@ namespace MockSite.Message {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Code = input.ReadInt32();
+            Id = input.ReadInt32();
             break;
           }
           case 18: {
-            DisplayKey = input.ReadString();
+            Code = input.ReadString();
             break;
           }
-          case 24: {
-            OrderNo = input.ReadInt32();
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 34: {
+            Email = input.ReadString();
             break;
           }
         }
@@ -589,11 +622,11 @@ namespace MockSite.Message {
 
   }
 
-  public sealed partial class UserCode : pb::IMessage<UserCode> {
-    private static readonly pb::MessageParser<UserCode> _parser = new pb::MessageParser<UserCode>(() => new UserCode());
+  public sealed partial class QueryUserMessage : pb::IMessage<QueryUserMessage> {
+    private static readonly pb::MessageParser<QueryUserMessage> _parser = new pb::MessageParser<QueryUserMessage>(() => new QueryUserMessage());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<UserCode> Parser { get { return _parser; } }
+    public static pb::MessageParser<QueryUserMessage> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -606,55 +639,55 @@ namespace MockSite.Message {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public UserCode() {
+    public QueryUserMessage() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public UserCode(UserCode other) : this() {
-      code_ = other.code_;
+    public QueryUserMessage(QueryUserMessage other) : this() {
+      id_ = other.id_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public UserCode Clone() {
-      return new UserCode(this);
+    public QueryUserMessage Clone() {
+      return new QueryUserMessage(this);
     }
 
-    /// <summary>Field number for the "Code" field.</summary>
-    public const int CodeFieldNumber = 1;
-    private int code_;
+    /// <summary>Field number for the "Id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private int id_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Code {
-      get { return code_; }
+    public int Id {
+      get { return id_; }
       set {
-        code_ = value;
+        id_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as UserCode);
+      return Equals(other as QueryUserMessage);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(UserCode other) {
+    public bool Equals(QueryUserMessage other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Code != other.Code) return false;
+      if (Id != other.Id) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Code != 0) hash ^= Code.GetHashCode();
+      if (Id != 0) hash ^= Id.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -668,9 +701,9 @@ namespace MockSite.Message {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Code != 0) {
+      if (Id != 0) {
         output.WriteRawTag(8);
-        output.WriteInt32(Code);
+        output.WriteInt32(Id);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -680,8 +713,8 @@ namespace MockSite.Message {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Code != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Code);
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Id);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -690,12 +723,12 @@ namespace MockSite.Message {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(UserCode other) {
+    public void MergeFrom(QueryUserMessage other) {
       if (other == null) {
         return;
       }
-      if (other.Code != 0) {
-        Code = other.Code;
+      if (other.Id != 0) {
+        Id = other.Id;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -709,7 +742,405 @@ namespace MockSite.Message {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Code = input.ReadInt32();
+            Id = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class CreateUserMessage : pb::IMessage<CreateUserMessage> {
+    private static readonly pb::MessageParser<CreateUserMessage> _parser = new pb::MessageParser<CreateUserMessage>(() => new CreateUserMessage());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<CreateUserMessage> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::MockSite.Message.UserMessageReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateUserMessage() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateUserMessage(CreateUserMessage other) : this() {
+      code_ = other.code_;
+      name_ = other.name_;
+      email_ = other.email_;
+      password_ = other.password_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public CreateUserMessage Clone() {
+      return new CreateUserMessage(this);
+    }
+
+    /// <summary>Field number for the "Code" field.</summary>
+    public const int CodeFieldNumber = 1;
+    private string code_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Code {
+      get { return code_; }
+      set {
+        code_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Name" field.</summary>
+    public const int NameFieldNumber = 2;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Email" field.</summary>
+    public const int EmailFieldNumber = 3;
+    private string email_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Email {
+      get { return email_; }
+      set {
+        email_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Password" field.</summary>
+    public const int PasswordFieldNumber = 4;
+    private string password_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Password {
+      get { return password_; }
+      set {
+        password_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as CreateUserMessage);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(CreateUserMessage other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Code != other.Code) return false;
+      if (Name != other.Name) return false;
+      if (Email != other.Email) return false;
+      if (Password != other.Password) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Code.Length != 0) hash ^= Code.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Email.Length != 0) hash ^= Email.GetHashCode();
+      if (Password.Length != 0) hash ^= Password.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Code.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Code);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Email.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Email);
+      }
+      if (Password.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Password);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Code.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Code);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Email.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Email);
+      }
+      if (Password.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Password);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(CreateUserMessage other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Code.Length != 0) {
+        Code = other.Code;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Email.Length != 0) {
+        Email = other.Email;
+      }
+      if (other.Password.Length != 0) {
+        Password = other.Password;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Code = input.ReadString();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Email = input.ReadString();
+            break;
+          }
+          case 34: {
+            Password = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class UpdateUserMessage : pb::IMessage<UpdateUserMessage> {
+    private static readonly pb::MessageParser<UpdateUserMessage> _parser = new pb::MessageParser<UpdateUserMessage>(() => new UpdateUserMessage());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<UpdateUserMessage> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::MockSite.Message.UserMessageReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateUserMessage() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateUserMessage(UpdateUserMessage other) : this() {
+      id_ = other.id_;
+      name_ = other.name_;
+      email_ = other.email_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UpdateUserMessage Clone() {
+      return new UpdateUserMessage(this);
+    }
+
+    /// <summary>Field number for the "Id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private int id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Name" field.</summary>
+    public const int NameFieldNumber = 2;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Email" field.</summary>
+    public const int EmailFieldNumber = 3;
+    private string email_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Email {
+      get { return email_; }
+      set {
+        email_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as UpdateUserMessage);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(UpdateUserMessage other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (Name != other.Name) return false;
+      if (Email != other.Email) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0) hash ^= Id.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Email.Length != 0) hash ^= Email.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(Id);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Name);
+      }
+      if (Email.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Email);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Id);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Email.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Email);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(UpdateUserMessage other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0) {
+        Id = other.Id;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Email.Length != 0) {
+        Email = other.Email;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            Email = input.ReadString();
             break;
           }
         }

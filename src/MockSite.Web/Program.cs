@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore;
+﻿#region
+
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+
+#endregion
 
 namespace MockSite.Web
 {
@@ -11,7 +15,6 @@ namespace MockSite.Web
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
     }
 }

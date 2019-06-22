@@ -1,21 +1,19 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { createBrowserHistory } from "history";
-import { Router, Route, Switch } from "react-router-dom";
+import React from 'react'
+import { render } from 'react-dom'
+import App from '@app/App'
+import * as serviceWorker from '@app/Common/Utils/serviceWorker'
 
-import indexRoutes from "routes/index.jsx";
+const rootElement = document.getElementById('root')
+const renderApp = () => render(<App />, rootElement)
 
-import "assets/scss/material-dashboard-pro-react.css?v=1.4.0";
+renderApp()
+if (app.env.ENABLE_HOT_RELOAD) {
+  module.hot?.accept('@app/App', renderApp)
+}
 
-const hist = createBrowserHistory();
+if (app.env.ENABLE_SERVICE_WORKER) {
+  serviceWorker.register({ url: app.env.SERVICE_WORKER_URL })
+}
 
-ReactDOM.render(
-  <Router history={hist}>
-    <Switch>
-      {indexRoutes.map((prop, key) => {
-        return <Route path={prop.path} component={prop.component} key={key} />;
-      })}
-    </Switch>
-  </Router>,
-  document.getElementById("root")
-);
+/* eslint-disable-next-line no-console */
+console.log(`Revision Number: ${app.env.REVISION_NUMBER}`)

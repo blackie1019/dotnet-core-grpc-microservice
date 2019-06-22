@@ -1,19 +1,17 @@
+#region
+
 using System.Collections.Generic;
 using Grpc.Core;
 
+#endregion
+
 namespace MockSite.DomainService.Utilities
 {
-    public class gRPCServer
+    public class GrpcServer
     {
-        public string Host { get; private set; }
-        public int Port { get; private set; }
-        private readonly Grpc.Core.Server serverInstance;
-
-        public gRPCServer(string host, int port, params ServerServiceDefinition[] serverServices)
+        public GrpcServer(string host, int port, params ServerServiceDefinition[] serverServices)
         {
-            Host = host;
-            Port = port;
-            serverInstance = new Grpc.Core.Server(new List<ChannelOption>
+            var serverInstance = new Server(new List<ChannelOption>
                 {
                     new ChannelOption("grpc.keepalive_permit_without_calls", 1),
                     new ChannelOption("grpc.http2.max_pings_without_data", 0)
@@ -22,7 +20,7 @@ namespace MockSite.DomainService.Utilities
             {
                 Ports =
                 {
-                    new ServerPort(Host, Port, ServerCredentials.Insecure)
+                    new ServerPort(host, port, ServerCredentials.Insecure)
                 }
             };
             foreach (var serverService in serverServices)

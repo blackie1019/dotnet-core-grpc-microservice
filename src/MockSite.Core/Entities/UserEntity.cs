@@ -2,8 +2,14 @@ namespace MockSite.Core.Entities
 {
     public class UserEntity
     {
-        public int Code { get; set; }
-        public string DisplayKey { get; set; }
-        public int OrderNo { get; set; }
+        public int Id { get; set; }
+
+        public string Code { get; set; }
+
+        public string Email { get; set; }
+
+        public string Name { get; set; }
+
+        public string Password { get; set; }
     }
 }

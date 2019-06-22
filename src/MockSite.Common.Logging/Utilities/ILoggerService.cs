@@ -1,4 +1,8 @@
+#region
+
 using MockSite.Common.Logging.Utilities.LogDetail;
+
+#endregion
 
 namespace MockSite.Common.Logging.Utilities
 {

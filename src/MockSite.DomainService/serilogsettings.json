@@ -1,4 +1,5 @@
 {
+  "ApplicationName": "MockSite",
   "Serilog": {
     "Using": [
       "MockSite.Common.Logging"

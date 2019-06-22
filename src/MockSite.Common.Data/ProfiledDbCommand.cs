@@ -1,4 +1,6 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -7,9 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MockSite.Common.Logging.Utilities;
 
+#endregion
+
 namespace MockSite.Common.Data
 {
-    public class ProfiledDbCommand : DbCommand
+    public sealed class ProfiledDbCommand : DbCommand
     {
         private DbCommand _command;
         private DbConnection _connection;
@@ -19,11 +23,9 @@ namespace MockSite.Common.Data
         {
             _command = command ?? throw new ArgumentNullException(nameof(command));
 
-            if (connection != null)
-            {
-                _connection = connection;
-                UnwrapAndAssignConnection(connection);
-            }
+            if (connection == null) return;
+            _connection = connection;
+            UnwrapAndAssignConnection(connection);
         }
 
         public override string CommandText
@@ -74,8 +76,7 @@ namespace MockSite.Common.Data
             set
             {
                 _transaction = value;
-                var awesomeTran = value as ProfiledDbTransaction;
-                _command.Transaction = awesomeTran == null ? value : awesomeTran.WrappedTransaction;
+                _command.Transaction = !(value is ProfiledDbTransaction awesomeTran) ? value : awesomeTran.WrappedTransaction;
             }
         }
 
@@ -91,11 +92,11 @@ namespace MockSite.Common.Data
             set => _command.UpdatedRowSource = value;
         }
 
-        private void LogElasped(Stopwatch watch)
+        private void LogElapsed(Stopwatch watch)
         {
             watch.Stop();
             var perfDetail = LoggerHelper.Instance.GetPerformanceDetail();
-            
+
             perfDetail.Parameter = GetParametersForLogging();
             perfDetail.Target = _command.CommandText;
             perfDetail.Duration = watch.ElapsedMilliseconds;
@@ -118,10 +119,10 @@ namespace MockSite.Common.Data
             return null;
         }
 
-        private void LogElasped(Stopwatch watch, string commandText, Dictionary<string, string> parameterDic)
+        private void LogElapsed(Stopwatch watch, string commandText, Dictionary<string, string> parameterDic)
         {
             watch.Stop();
-            
+
             var perfDetail = LoggerHelper.Instance.GetPerformanceDetail();
             perfDetail.Parameter = parameterDic;
             perfDetail.Target = commandText;
@@ -129,7 +130,8 @@ namespace MockSite.Common.Data
             LoggerHelper.Instance.Performance(perfDetail);
         }
 
-        protected virtual DbDataReader CreateDbDataReader(DbDataReader original, Action callback) => new ProfiledDbDataReader(original, callback);
+        private DbDataReader CreateDbDataReader(DbDataReader original, Action callback) =>
+            new ProfiledDbDataReader(original, callback);
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
@@ -141,7 +143,7 @@ namespace MockSite.Common.Data
                 var watch = new Stopwatch();
                 watch.Start();
                 result = _command.ExecuteReader(behavior);
-                result = CreateDbDataReader(result, () => LogElasped(watch, commandText, parametersForLogging));
+                result = CreateDbDataReader(result, () => LogElapsed(watch, commandText, parametersForLogging));
             }
             catch (Exception ex)
             {
@@ -152,8 +154,9 @@ namespace MockSite.Common.Data
 
             return result;
         }
-        
-        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+
+        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior,
+            CancellationToken cancellationToken)
         {
             DbDataReader result;
             var parametersForLogging = GetParametersForLogging();
@@ -163,7 +166,7 @@ namespace MockSite.Common.Data
             try
             {
                 result = await _command.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
-                result = CreateDbDataReader(result, () => LogElasped(watch, commandText, parametersForLogging));
+                result = CreateDbDataReader(result, () => LogElapsed(watch, commandText, parametersForLogging));
             }
             catch (Exception ex)
             {
@@ -192,7 +195,7 @@ namespace MockSite.Common.Data
             }
             finally
             {
-                LogElasped(watch);
+                LogElapsed(watch);
             }
 
             return result;
@@ -215,7 +218,7 @@ namespace MockSite.Common.Data
             }
             finally
             {
-                LogElasped(watch);
+                LogElapsed(watch);
             }
 
             return result;
@@ -238,7 +241,7 @@ namespace MockSite.Common.Data
             }
             finally
             {
-                LogElasped(watch);
+                LogElapsed(watch);
             }
 
             return result;
@@ -261,7 +264,7 @@ namespace MockSite.Common.Data
             }
             finally
             {
-                LogElasped(watch);
+                LogElapsed(watch);
             }
 
             return result;

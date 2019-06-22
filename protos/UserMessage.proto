@@ -1,31 +1,44 @@
 syntax = "proto3";
 
-package User; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+package Account; //will be placed in a namespace matching the package name if csharp_namespace is not specified
 option csharp_namespace = "MockSite.Message";
+
+message Empty {
+}
 
 enum ResponseCode {
   Success = 0;
   GeneralError = 999999;
 }
 
-message Empty{
-  
+message BaseResponse {
+  ResponseCode Code = 1;
 }
 
-message ResponseBase{
-  ResponseCode Code =1;
+message User {
+  int32 Id = 1;
+  string Code = 2;
+  string Name = 3;
+  string Email = 4;
 }
 
-message User{
-  int32 Code =1;
-  string DisplayKey=2;
-  int32 OrderNo =3;
+message Users {
+  repeated User Value = 1;
 }
 
-message Users{
-  repeated User Value=1;
+message QueryUserMessage {
+  int32 Id = 1;
 }
 
-message UserCode{
-  int32 Code =1;
+message CreateUserMessage {
+  string Code = 1;
+  string Name = 2;
+  string Email = 3;
+  string Password = 4;
+}
+
+message UpdateUserMessage {
+  int32 Id = 1;
+  string Name = 2;
+  string Email = 3;
 }

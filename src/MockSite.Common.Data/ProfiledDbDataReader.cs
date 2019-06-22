@@ -1,18 +1,23 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
+#endregion
+
 namespace MockSite.Common.Data
 {
     public class ProfiledDbDataReader : DbDataReader
     {
-        private Action callback;
+        private readonly Action _callback;
+
         public ProfiledDbDataReader(DbDataReader reader, Action callback)
         {
             WrappedReader = reader;
-            this.callback = callback;
+            this._callback = callback;
         }
 
         public override int Depth => WrappedReader.Depth;
@@ -53,13 +58,15 @@ namespace MockSite.Common.Data
 
         public override double GetDouble(int ordinal) => WrappedReader.GetDouble(ordinal);
 
-        public override System.Collections.IEnumerator GetEnumerator() => ((System.Collections.IEnumerable)WrappedReader).GetEnumerator();
+        public override System.Collections.IEnumerator GetEnumerator() =>
+            ((System.Collections.IEnumerable) WrappedReader).GetEnumerator();
 
         public override Type GetFieldType(int ordinal) => WrappedReader.GetFieldType(ordinal);
 
         public override T GetFieldValue<T>(int ordinal) => WrappedReader.GetFieldValue<T>(ordinal);
 
-        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) => WrappedReader.GetFieldValueAsync<T>(ordinal, cancellationToken);
+        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) =>
+            WrappedReader.GetFieldValueAsync<T>(ordinal, cancellationToken);
 
         public override float GetFloat(int ordinal) => WrappedReader.GetFloat(ordinal);
 
@@ -83,22 +90,25 @@ namespace MockSite.Common.Data
 
         public override bool IsDBNull(int ordinal) => WrappedReader.IsDBNull(ordinal);
 
-        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) => WrappedReader.IsDBNullAsync(ordinal, cancellationToken);
+        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) =>
+            WrappedReader.IsDBNullAsync(ordinal, cancellationToken);
 
         public override bool NextResult() => WrappedReader.NextResult();
 
-        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => WrappedReader.NextResultAsync(cancellationToken);
+        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) =>
+            WrappedReader.NextResultAsync(cancellationToken);
 
         public override bool Read() => WrappedReader.Read();
 
-        public override Task<bool> ReadAsync(CancellationToken cancellationToken) => WrappedReader.ReadAsync(cancellationToken);
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
+            WrappedReader.ReadAsync(cancellationToken);
 
         public override void Close()
         {
             // reader can be null when we're not profiling, but we've inherited from ProfiledDbCommand and are returning a
             // an unwrapped reader from the base command
             WrappedReader?.Close();
-            callback?.Invoke();
+            _callback?.Invoke();
         }
 
         public override DataTable GetSchemaTable() => WrappedReader.GetSchemaTable();

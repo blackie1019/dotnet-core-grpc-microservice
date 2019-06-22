@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -10,18 +12,20 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#endregion
+
 namespace MockSite.Common.Core.Utilities
 {
     public static class ConfigHelper
     {
         [SuppressMessage("ReSharper", "S112")]
-        public static InMemoryFileProvider GetConfig(string consulKVApi, IEnumerable<string> modules)
+        public static InMemoryFileProvider GetConfig(string consulKvApi, IEnumerable<string> modules)
         {
             var httpClient = new HttpClient();
-            if (string.IsNullOrWhiteSpace(consulKVApi) || !Uri.IsWellFormedUriString(consulKVApi, UriKind.Absolute))
+            if (string.IsNullOrWhiteSpace(consulKvApi) || !Uri.IsWellFormedUriString(consulKvApi, UriKind.Absolute))
                 return null;
 
-            httpClient.BaseAddress = new Uri(consulKVApi);
+            httpClient.BaseAddress = new Uri(consulKvApi);
 
             JObject configs = null;
 
@@ -34,7 +38,7 @@ namespace MockSite.Common.Core.Utilities
                 var content = httpResult.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
                 if (string.IsNullOrWhiteSpace(content)) continue;
-                var contentValue = JsonConvert.DeserializeObject<List<ConsulKV>>(content).FirstOrDefault();
+                var contentValue = JsonConvert.DeserializeObject<List<ConsulKv>>(content).FirstOrDefault();
                 var decodedBytes = Convert.FromBase64String(contentValue?.Value);
                 var decodedTxt = Encoding.UTF8.GetString(decodedBytes);
                 var tmpConfig = new JObject
@@ -59,7 +63,7 @@ namespace MockSite.Common.Core.Utilities
 
             if (configs == null)
                 return null;
-            
+
             var memoryFileProvider = new InMemoryFileProvider(configs.ToString());
             return memoryFileProvider;
         }
@@ -80,13 +84,18 @@ namespace MockSite.Common.Core.Utilities
     }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    public class ConsulKV
+    public class ConsulKv
     {
         public string LockIndex { get; set; }
+
         public string Key { get; set; }
+
         public int Flags { get; set; }
+
         public string Value { get; set; }
+
         public int CreateIndex { get; set; }
+
         public int ModifyIndex { get; set; }
     }
 
@@ -95,21 +104,33 @@ namespace MockSite.Common.Core.Utilities
         private class InMemoryFile : IFileInfo
         {
             private readonly byte[] _data;
+
             public InMemoryFile(string json) => _data = Encoding.UTF8.GetBytes(json);
+
             public Stream CreateReadStream() => new MemoryStream(_data);
+
             public bool Exists { get; } = true;
+
             public long Length => _data.Length;
+
             public string PhysicalPath { get; } = string.Empty;
+
             public string Name { get; } = string.Empty;
+
             public DateTimeOffset LastModified { get; } = DateTimeOffset.UtcNow;
+
             public bool IsDirectory { get; } = false;
         }
 
         private readonly IFileInfo _fileInfo;
+
         public InMemoryFileProvider(string json) => _fileInfo = new InMemoryFile(json);
-        public IFileInfo GetFileInfo(string subpath) => _fileInfo;
+
+        public IFileInfo GetFileInfo(string subPath) => _fileInfo;
+
         [SuppressMessage("ReSharper", "S1168")]
-        public IDirectoryContents GetDirectoryContents(string subpath) => null;
+        public IDirectoryContents GetDirectoryContents(string subPath) => null;
+
         public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
     }
 }

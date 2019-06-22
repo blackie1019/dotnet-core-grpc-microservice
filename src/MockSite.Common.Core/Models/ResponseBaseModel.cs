@@ -1,45 +1,42 @@
+#region
+
 using System.Collections.Generic;
 using MockSite.Common.Core.Enums;
+
+#endregion
 
 namespace MockSite.Common.Core.Models
 {
     public class ResponseBaseModel<T>
     {
-        public ResponseBaseModel()
-        {
-            _code = ResponseCode.GeneralError;
-        }
-
         public Dictionary<string, string> Carrier { get; set; }
 
-        public T Data => _data;
+        public ResponseCode Code { get; private set; }
 
-        public string Msg => _msg;
+        public T Data { get; private set; }
 
-        public ResponseCode Code => _code;
+        public string Msg { get; private set; }
 
-        private T _data { get; set; }
+        public ResponseBaseModel()
+        {
+            Code = ResponseCode.GeneralError;
+        }
 
-        private string _msg { get; set; }
-
-        private ResponseCode _code { get; set; }
+        public void SetCode(ResponseCode code, string msg = null)
+        {
+            Code = code;
+            Msg = msg ?? code.ToString();
+        }
 
         public void SetData(T data)
         {
-            _data = data;
+            Data = data;
             SetCode(ResponseCode.Success);
         }
 
         public void SetErrorMsg(string msg, ResponseCode code = ResponseCode.GeneralError)
         {
             SetCode(code, msg);
-        }
-
-        public void SetCode(ResponseCode code, string msg = null)
-        {
-            _code = code;
-
-            _msg = msg ?? code.ToString();
         }
     }
 }

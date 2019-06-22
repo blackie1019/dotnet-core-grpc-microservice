@@ -1,7 +1,11 @@
+#region
+
 using System;
 using System.Reflection;
 using MockSite.Common.Logging.Utilities;
 using Newtonsoft.Json;
+
+#endregion
 
 namespace MockSite.DomainService.Utilities
 {
@@ -26,6 +30,5 @@ namespace MockSite.DomainService.Utilities
                 LoggerHelper.Instance.Error(ex);
             }
         }
-
     }
 }

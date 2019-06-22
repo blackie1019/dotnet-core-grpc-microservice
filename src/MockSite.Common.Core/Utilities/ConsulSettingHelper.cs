@@ -1,26 +1,28 @@
+#region
+
 using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 
+#endregion
+
 namespace MockSite.Common.Core.Utilities
 {
     public class ConsulSettingHelper
     {
-        private static readonly Lazy<ConsulSettingHelper> Lazy =
+        private static readonly Lazy<ConsulSettingHelper> _lazy =
             new Lazy<ConsulSettingHelper>(() => new ConsulSettingHelper());
 
-        public static ConsulSettingHelper Instance => Lazy.Value;
+        public static ConsulSettingHelper Instance => _lazy.Value;
 
         private readonly IConfigurationRoot _configuration;
 
         private ConsulSettingHelper()
         {
-            IConfigurationBuilder builder;
-
             //先建立Local Config
-            builder = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder()
                 .SetFileProvider(
                     new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
 
@@ -31,7 +33,6 @@ namespace MockSite.Common.Core.Utilities
                     "appsettings." + Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") + ".json",
                     true);
             }
-
 
             _configuration = builder.Build();
 

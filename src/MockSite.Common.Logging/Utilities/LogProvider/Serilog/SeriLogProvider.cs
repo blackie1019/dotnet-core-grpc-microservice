@@ -1,23 +1,27 @@
+#region
+
 using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using MockSite.Common.Logging.Utilities.LogDetail;
 using Serilog;
 
+#endregion
+
 namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
 {
-    public class SeriLogProvider : ILoggerService
+    public class SerilogProvider : ILoggerService
     {
         private const string DefaultLoadFile = "serilogsettings.json";
 
         private readonly ILogger _log;
 
-        private static readonly Lazy<SeriLogProvider> Lazy =
-            new Lazy<SeriLogProvider>(() => new SeriLogProvider());
+        private static readonly Lazy<SerilogProvider> _lazy =
+            new Lazy<SerilogProvider>(() => new SerilogProvider());
 
-        public static SeriLogProvider Instance => Lazy.Value;
+        public static SerilogProvider Instance => _lazy.Value;
 
-        SeriLogProvider()
+        private SerilogProvider()
         {
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultLoadFile);
             if (File.Exists(filePath))
@@ -51,11 +55,10 @@ namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
         {
             _log.Error("[Exception]{@detail}", detail);
         }
-        
+
         public void Performance(PerformanceDetail detail)
         {
             _log.Warning("[Perf]{@detail}", detail);
         }
-
     }
 }

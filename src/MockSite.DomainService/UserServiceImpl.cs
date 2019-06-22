@@ -1,15 +1,21 @@
+#region
+
 using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Grpc.Core;
 using MethodTimer;
 using MockSite.Core.DTOs;
-using MockSite.Core.Services;
+using MockSite.Core.Entities;
+using MockSite.Core.Interfaces;
 using MockSite.Message;
-using UserService = MockSite.Message.UserService;
+
+#endregion
 
 namespace MockSite.DomainService
 {
-    public class UserServiceImpl:UserService.UserServiceBase
+    public class UserServiceImpl : UserService.UserServiceBase
     {
         private readonly IUserService _coreService;
 
@@ -19,16 +25,17 @@ namespace MockSite.DomainService
         }
 
         [Time]
-        public override async Task<ResponseBase> Create(User request, ServerCallContext context)
+        public override async Task<BaseResponse> Create(CreateUserMessage message, ServerCallContext context)
         {
-            var result = new ResponseBase();
+            var result = new BaseResponse();
             try
             {
-                await _coreService.Create(new UserDTO
+                await _coreService.Create(new UserDto
                 {
-                    Code = request.Code,
-                    DisplayKey = request.DisplayKey,
-                    OrderNo = request.OrderNo
+                    Code = message.Code,
+                    Name = message.Name,
+                    Email = message.Email,
+                    Password = EncodePassword(message.Password)
                 });
                 result.Code = ResponseCode.Success;
             }
@@ -36,21 +43,20 @@ namespace MockSite.DomainService
             {
                 result.Code = ResponseCode.GeneralError;
             }
-
             return result;
         }
 
         [Time]
-        public override async Task<ResponseBase> Update(User request, ServerCallContext context)
+        public override async Task<BaseResponse> Update(UpdateUserMessage message, ServerCallContext context)
         {
-            var result = new ResponseBase();
+            var result = new BaseResponse();
             try
             {
-                await _coreService.Update(new UserDTO
+                await _coreService.Update(new UserDto
                 {
-                    Code = request.Code,
-                    DisplayKey = request.DisplayKey,
-                    OrderNo = request.OrderNo
+                    Id = message.Id,
+                    Name = message.Name,
+                    Email = message.Email
                 });
                 result.Code = ResponseCode.Success;
             }
@@ -58,40 +64,32 @@ namespace MockSite.DomainService
             {
                 result.Code = ResponseCode.GeneralError;
             }
-
             return result;
         }
 
         [Time]
-        public override async Task<ResponseBase> Delete(UserCode request, ServerCallContext context)
+        public override async Task<BaseResponse> Delete(QueryUserMessage message, ServerCallContext context)
         {
-            var result = new ResponseBase();
+            var result = new BaseResponse();
             try
             {
-                await _coreService.Delete(new UserDTO{Code = request.Code});
+                await _coreService.Delete(message.Id);
                 result.Code = ResponseCode.Success;
             }
             catch (Exception)
             {
                 result.Code = ResponseCode.GeneralError;
             }
-
             return result;
         }
 
         [Time]
-        public override async Task<User> Get(UserCode request, ServerCallContext context)
+        public override async Task<User> Get(QueryUserMessage message, ServerCallContext context)
         {
             try
             {
-                var data = await _coreService.GetByCode(request.Code);
-                return new User
-                {
-                    Code = data.Code,
-                    DisplayKey = data.DisplayKey,
-                    OrderNo = data.OrderNo
-                };
-               
+                var entity = await _coreService.GetById(message.Id);
+                return ConvertEntityToMessage(entity);
             }
             catch (Exception)
             {
@@ -104,24 +102,39 @@ namespace MockSite.DomainService
         {
             try
             {
+                var entities = await _coreService.GetAll();
                 var result = new Users();
-                var datas = await _coreService.GetAll();
-                foreach (var data in datas)
-                {
-                    result.Value.Add(new User
-                    {
-                        Code = data.Code,
-                        DisplayKey = data.DisplayKey,
-                        OrderNo = data.OrderNo
-                            });
-                }
-
+                result.Value.AddRange(entities.Select(ConvertEntityToMessage));
                 return result;
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        private string EncodePassword(string rawPassword)
+        {
+            using (var cryptoMd5 = System.Security.Cryptography.MD5.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(rawPassword);
+                var hash = cryptoMd5.ComputeHash(bytes);
+                var md5 = BitConverter.ToString(hash)
+                    .Replace("-", String.Empty)
+                    .ToUpper();
+                return md5;
+            }
+        }
+
+        private User ConvertEntityToMessage(UserEntity entity)
+        {
+            return new User
+            {
+                Id = entity.Id,
+                Code = entity.Code,
+                Email = entity.Email,
+                Name = entity.Name
+            };
         }
     }
 }

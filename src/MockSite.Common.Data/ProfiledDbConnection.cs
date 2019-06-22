@@ -1,12 +1,16 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
+#endregion
+
 namespace MockSite.Common.Data
 {
-    public class ProfiledDbConnection : DbConnection
+    public sealed class ProfiledDbConnection : DbConnection
     {
         private DbConnection _connection;
 
@@ -47,7 +51,7 @@ namespace MockSite.Common.Data
             return new ProfiledDbTransaction(_connection.BeginTransaction(isolationLevel), this);
         }
 
-        protected virtual DbCommand CreateDbCommand(DbCommand original) => new ProfiledDbCommand(original, this);
+        private DbCommand CreateDbCommand(DbCommand original) => new ProfiledDbCommand(original, this);
 
         protected override DbCommand CreateDbCommand() => CreateDbCommand(_connection.CreateCommand());
 
@@ -70,12 +74,14 @@ namespace MockSite.Common.Data
 
         protected override bool CanRaiseEvents => true;
 
-        public override void EnlistTransaction(System.Transactions.Transaction transaction) => _connection.EnlistTransaction(transaction);
+        public override void EnlistTransaction(System.Transactions.Transaction transaction) =>
+            _connection.EnlistTransaction(transaction);
 
         public override DataTable GetSchema() => _connection.GetSchema();
 
         public override DataTable GetSchema(string collectionName) => _connection.GetSchema(collectionName);
 
-        public override DataTable GetSchema(string collectionName, string[] restrictionValues) => _connection.GetSchema(collectionName, restrictionValues);
+        public override DataTable GetSchema(string collectionName, string[] restrictionValues) =>
+            _connection.GetSchema(collectionName, restrictionValues);
     }
 }

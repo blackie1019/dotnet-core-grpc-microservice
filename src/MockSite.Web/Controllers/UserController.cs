@@ -1,10 +1,15 @@
-using System;
+#region
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MockSite.Message;
+using MockSite.Web.Constants;
 using MockSite.Web.Models;
+using ResponseCode = MockSite.Web.Enums.ResponseCode;
+
+#endregion
 
 namespace MockSite.Web.Controllers
 {
@@ -18,90 +23,44 @@ namespace MockSite.Web.Controllers
             _serviceClient = serviceClient;
         }
 
-        [HttpPost("CreateUser")]
-        public async Task<ResponseBaseModel<string>> CreateUser([FromBody] User request)
-        {
-            var response = new ResponseBaseModel<string>();
-            try
-            {
-                var result = await _serviceClient.CreateAsync(request);
-                response.SetCode((Enums.ResponseCode) Convert.ToInt32(result.Code));
-            }
-            catch (Exception e)
-            {
-                response.SetErrorMsg(e.Message);
-            }
-
-            return response;
-        }
-
-        [HttpPost("UpdateUser")]
-        public async Task<ResponseBaseModel<string>> UpdateUser([FromBody] User request)
-        {
-            var response = new ResponseBaseModel<string>();
-            try
-            {
-                var result = await _serviceClient.UpdateAsync(request);
-                response.SetCode((Enums.ResponseCode) Convert.ToInt32(result.Code));
-            }
-            catch (Exception e)
-            {
-                response.SetErrorMsg(e.Message);
-            }
-
-            return response;
-        }
-
-        [HttpPost("DeleteUser")]
-        public async Task<ResponseBaseModel<string>> DeleteUser([FromBody] UserCode request)
-        {
-            var response = new ResponseBaseModel<string>();
-            try
-            {
-                var result = await _serviceClient.DeleteAsync(request);
-                response.SetCode((Enums.ResponseCode) Convert.ToInt32(result.Code));
-            }
-            catch (Exception e)
-            {
-                response.SetErrorMsg(e.Message);
-            }
-
-            return response;
-        }
-
-
-        [HttpGet("GetUsers/{code}", Name = "User_GetUser")]
-        public async Task<ResponseBaseModel<User>> GetUser(int code)
-        {
-            var response = new ResponseBaseModel<User>();
-            try
-            {
-                var result = await _serviceClient.GetAsync(new UserCode {Code = code});
-                response.SetData(result);
-            }
-            catch (Exception e)
-            {
-                response.SetErrorMsg(e.Message);
-            }
-
-            return response;
-        }
-
-        [HttpGet("GetUsers", Name = "User_GetUsers")]
+        [Authorize(Roles = Policy.UserReadonly)]
+        [HttpGet("GetUsers")]
         public async Task<ResponseBaseModel<IEnumerable<User>>> GetUsers()
         {
-            var response = new ResponseBaseModel<IEnumerable<User>>();
-            try
-            {
-                var result = await _serviceClient.GetAllAsync(new Empty());
-                response.SetData(result.Value);
-            }
-            catch (Exception e)
-            {
-                response.SetErrorMsg(e.Message);
-            }
+            var result = await _serviceClient.GetAllAsync(new Empty());
+            return new ResponseBaseModel<IEnumerable<User>>(ResponseCode.Success, result.Value);
+        }
 
-            return response;
+        [Authorize(Roles = Policy.UserReadonly)]
+        [HttpGet("GetUser/{id}")]
+        public async Task<ResponseBaseModel<User>> GetUser(int id)
+        {
+            var user = await _serviceClient.GetAsync(new QueryUserMessage {Id = id});
+            return new ResponseBaseModel<User>(ResponseCode.Success, user);
+        }
+
+        [Authorize(Roles = Policy.UserModify)]
+        [HttpPost("CreateUser")]
+        public async Task<ResponseBaseModel<string>> CreateUser([FromBody] CreateUserMessage request)
+        {
+            var result = await _serviceClient.CreateAsync(request);
+            return new ResponseBaseModel<string>((ResponseCode) result.Code, null);
+        }
+
+        [Authorize(Roles = Policy.UserModify)]
+        [HttpPost("UpdateUser")]
+        public async Task<ResponseBaseModel<string>> UpdateUser([FromBody] UpdateUserMessage request)
+        {
+            var result = await _serviceClient.UpdateAsync(request);
+            return new ResponseBaseModel<string>((ResponseCode) result.Code, null);
+        }
+
+        [Authorize(Roles = Policy.UserDelete)]
+        [HttpPost("DeleteUser/{id}")]
+        public async Task<ResponseBaseModel<string>> DeleteUser(int id)
+        {
+            var result = await _serviceClient.DeleteAsync(new QueryUserMessage {Id = id});
+            return new ResponseBaseModel<string>((ResponseCode) result.Code, null);
         }
     }
 }

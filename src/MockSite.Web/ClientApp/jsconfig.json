@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": false,
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "target": "es2017",
+    "paths": {
+      "@app/*": ["./src/*"],
+    }
+  },
+  "exclude": ["build", "node_modules"]
+}

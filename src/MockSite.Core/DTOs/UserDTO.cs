@@ -1,9 +1,21 @@
+#region
+
+using MongoDB.Bson.Serialization.Attributes;
+
+#endregion
+
 namespace MockSite.Core.DTOs
 {
-    public class UserDTO
+    public class UserDto
     {
-        public int Code { get; set; }
-        public string DisplayKey { get; set; }
-        public int OrderNo { get; set; }
+        [BsonId] public int Id { get; set; }
+
+        [BsonElement] public string Code { get; set; }
+
+        [BsonElement] public string Email { get; set; }
+
+        [BsonElement] public string Name { get; set; }
+
+        [BsonElement] public string Password { get; set; }
     }
 }

@@ -1,0 +1,19 @@
+import { createActions } from 'redux-actions'
+
+export default createActions(
+  'INIT',
+  'INIT_SUCCESS',
+  'LOGIN',
+  'LOGIN_SUCCESS',
+  'LOGIN_FAILURE',
+  'LOGOUT',
+  'CHANGE_PASSWORD',
+  'CHANGE_PASSWORD_SUCCESS',
+  'CHANGE_PASSWORD_FAILURE',
+  'LOCK_SCREEN',
+  'LOCK_SCREEN_SUCCESS',
+  'UNLOCK_SCREEN',
+  'UNLOCK_SCREEN_SUCCESS',
+  'UNLOCK_SCREEN_FAILURE',
+  { prefix: 'AUTHENTICATION' }
+)

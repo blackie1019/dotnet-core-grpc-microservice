@@ -1,6 +1,11 @@
+#region
+
+using Microsoft.Extensions.Configuration;
 using MockSite.Common.Logging.Utilities.LogProvider.Serilog.Enricher;
 using Serilog;
 using Serilog.Configuration;
+
+#endregion
 
 namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
 {
@@ -10,10 +15,11 @@ namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
         {
             return enrich.With(new ThreadIdEnricher());
         }
-        
-        public static LoggerConfiguration WithApplicationName(this LoggerEnrichmentConfiguration enrich)
+
+        public static LoggerConfiguration WithApplicationName(this LoggerEnrichmentConfiguration enrich,
+            IConfiguration config)
         {
-            return enrich.With(new ApplicationNameEnricher());
+            return enrich.With(new ApplicationNameEnricher(config));
         }
     }
 }

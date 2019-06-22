@@ -9,6 +9,7 @@ DomainService 與 Application 的通訊橋樑，開發流程：
 3. 實作 DomainService 服務器端程式
 4. 實作 Application 客戶端程式
 5. 整合測試
+6. 建立部署腳本 .yaml 與.sh 檔案
 
 ## Reference ##
 

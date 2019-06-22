@@ -80,13 +80,17 @@ MockSite Project Structure
     npm install
     ```
 
+    若遇到以下錯誤請確認node版本是否為LTS
+
+    ![web-run](images/node-version.jpg)
+
 ## Local Initialize Steps
 
 ### Step 1 - DB Restore
 
 Please see [database preparation README file](database/README.md) on DataBase folder.
 
-## Step 2 - Build Code
+### Step 2 - Build Code
 
  `dotnet build` command of project is depend on **cake** and **gitversion** with dotnet tools.
 
@@ -157,6 +161,8 @@ dotnet gitversion > version.json
 
 ### 1. Start Database and Jaeger ###
 
+(已完成 **Local Initialize Steps** -> **Step 1 - DB Restore** 可略過此步驟)
+
 Path of docker-compose file: `/database/docker-compose.yml`
 
 Move to directory where docker-compose.yml exists and run containers.
@@ -176,12 +182,6 @@ Please run below command to run console for Domain Service:
 ![ds-run](images/ds-run.png)
 
 ### 3. Run Website
-
-Path of front-end: `/src/MockSite.Web/ClientApp`
-
-Move to front-end directory and run commands below.
-
-    npm install
 
 Path of Web Service: `/src/MockSite.Web`
 

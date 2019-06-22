@@ -1,7 +1,11 @@
+#region
+
 using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+
+#endregion
 
 namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
 {
@@ -13,17 +17,16 @@ namespace MockSite.Common.Logging.Utilities.LogProvider.Serilog
 
         private readonly IConfigurationBuilder _builder;
 
-        private static readonly Lazy<ApplicationNameHelper> Lazy =
+        private static readonly Lazy<ApplicationNameHelper> _lazy =
             new Lazy<ApplicationNameHelper>(() => new ApplicationNameHelper());
 
         public static ApplicationNameHelper Instance
         {
-            get { return Lazy.Value; }
+            get { return _lazy.Value; }
         }
 
-        ApplicationNameHelper()
+        private ApplicationNameHelper()
         {
-
             var basePath = Directory.GetCurrentDirectory();
             _builder = new ConfigurationBuilder()
                 .SetFileProvider(new PhysicalFileProvider(basePath))

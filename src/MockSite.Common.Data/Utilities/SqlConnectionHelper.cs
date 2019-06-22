@@ -1,3 +1,5 @@
+#region
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,17 +10,18 @@ using System.Threading.Tasks;
 using Dapper;
 using MySql.Data.MySqlClient;
 
+#endregion
+
 namespace MockSite.Common.Data.Utilities
 {
-    
-
     public static class SqlConnectionHelper
     {
         static SqlConnectionHelper()
         {
             var executedType = new HashSet<Type>();
             var iTaggableTypeInfo = typeof(ITaggable).GetTypeInfo();
-            var allAssembly = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("Skyline", StringComparison.InvariantCultureIgnoreCase));
+            var allAssembly = AppDomain.CurrentDomain.GetAssemblies().Where(a =>
+                a.FullName.StartsWith("MockSite", StringComparison.InvariantCultureIgnoreCase));
 
             Assembly.GetEntryAssembly().GetReferencedAssemblies();
 
@@ -28,13 +31,13 @@ namespace MockSite.Common.Data.Utilities
 
                 foreach (var type in types)
                 {
-                    foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    foreach (var property in type.GetProperties(
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                     {
-                        if (!executedType.Contains(property.PropertyType) && property.GetCustomAttribute<TaggableAttribute>() != null)
-                        {
-                            SqlMapper.AddTypeHandler(property.PropertyType, new TypeHandler());
-                            executedType.Add(property.PropertyType);
-                        }
+                        if (executedType.Contains(property.PropertyType) ||
+                            property.GetCustomAttribute<TaggableAttribute>() == null) continue;
+                        SqlMapper.AddTypeHandler(property.PropertyType, new TypeHandler());
+                        executedType.Add(property.PropertyType);
                     }
                 }
             }
@@ -45,33 +48,24 @@ namespace MockSite.Common.Data.Utilities
         public static async ValueTask<int> ExecuteNonQueryAsync(
             this MySqlConnection conn,
             string spName,
-            IEnumerable<MySqlParameter> parameters,
-            MySqlTransaction transaction)
+            DynamicParameters parameters,
+            MySqlTransaction transaction
+        )
         {
-            using (var cmd = new ProfiledDbConnection(conn).CreateCommand())
-            {
-                cmd.CommandText = spName;
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    cmd.Parameters.AddRange(parameters.ToArray());
-                }
-
-                return await cmd.ExecuteNonQueryAsync();
-            }
+            var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
+            var result = await new ProfiledDbConnection(conn).ExecuteAsync(cmd);
+            return result;
         }
 
         public static async Task<IEnumerable<T>> ExecuteQueryAsync<T>(
             this MySqlConnection conn,
             string spName,
             DynamicParameters parameters,
-            IDbTransaction transaction)
+            IDbTransaction transaction
+        )
         {
             var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
             var result = await new ProfiledDbConnection(conn).QueryAsync<T>(cmd);
-
             return result;
         }
 
@@ -79,19 +73,20 @@ namespace MockSite.Common.Data.Utilities
             this MySqlConnection conn,
             string spName,
             DynamicParameters parameters,
-            IDbTransaction transaction)
+            IDbTransaction transaction
+        )
         {
             var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
             var result = await new ProfiledDbConnection(conn).QuerySingleOrDefaultAsync<T>(cmd);
-
             return result;
         }
-        
+
         public static async Task<DbDataReader> ExecuteReaderAsync(
             this MySqlConnection conn,
             string spName,
             IEnumerable<MySqlParameter> parameters,
-            MySqlTransaction transaction)
+            MySqlTransaction transaction
+        )
         {
             using (var cmd = new ProfiledDbConnection(conn).CreateCommand())
             {
@@ -103,7 +98,7 @@ namespace MockSite.Common.Data.Utilities
                 {
                     cmd.Parameters.AddRange(parameters.ToArray());
                 }
-                
+
                 return await cmd.ExecuteReaderAsync();
             }
         }
