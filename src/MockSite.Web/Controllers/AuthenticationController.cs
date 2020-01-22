@@ -2,7 +2,8 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MockSite.Web.Enums;
+using MockSite.Common.Core.Enums;
+using MockSite.Common.Core.Models;
 using MockSite.Web.Models;
 using MockSite.Web.Services;
 
@@ -26,6 +27,7 @@ namespace MockSite.Web.Controllers
         public ResponseBaseModel<UserVo> Login([FromBody] LoginRequest request)
         {
             var user = _userService.Authenticate(request.Username, request.Password);
+
             return new ResponseBaseModel<UserVo>(
                 user != null ? ResponseCode.Success : ResponseCode.GeneralError,
                 user

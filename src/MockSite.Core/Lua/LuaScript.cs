@@ -9,35 +9,6 @@ namespace MockSite.Core.Lua
 {
     public class LuaScript
     {
-        private readonly ConnectionMultiplexer _redis;
-        private readonly string _redisConn;
-
-        public LuaScript(ConnectionMultiplexer redis, string conn)
-        {
-            _redis = redis;
-            _redisConn = conn;
-        }
-
-        public LoadedLuaScript ScriptObject(string luaScript)
-        {
-            return StackExchange.Redis.LuaScript
-                .Prepare(luaScript)
-                .Load(_redis.GetServer(_redisConn));
-        }
-
-        public async Task<RedisResult> ExecLuaScript(
-            string luaScript,
-            RedisKey[] redisKey,
-            RedisValue[] redisValue = null
-        )
-        {
-            return await _redis.GetDatabase().ScriptEvaluateAsync(
-                ScriptObject(luaScript).Hash,
-                redisKey,
-                redisValue
-            );
-        }
-
         public const string Create = @"
             local targetKey = KEYS[1]
             local id = tonumber(ARGV[1])
@@ -69,5 +40,34 @@ namespace MockSite.Core.Lua
         public const string GetById = @"
             local targetKey = KEYS[1]
             return redis.call('HGETALL', targetKey)";
+
+        private readonly ConnectionMultiplexer _redis;
+        private readonly string _redisConn;
+
+        public LuaScript(ConnectionMultiplexer redis, string conn)
+        {
+            _redis = redis;
+            _redisConn = conn;
+        }
+
+        public LoadedLuaScript ScriptObject(string luaScript)
+        {
+            return StackExchange.Redis.LuaScript
+                .Prepare(luaScript)
+                .Load(_redis.GetServer(_redisConn));
+        }
+
+        public async Task<RedisResult> ExecLuaScript(
+            string luaScript,
+            RedisKey[] redisKey,
+            RedisValue[] redisValue = null
+        )
+        {
+            return await _redis.GetDatabase().ScriptEvaluateAsync(
+                ScriptObject(luaScript).Hash,
+                redisKey,
+                redisValue
+            );
+        }
     }
 }

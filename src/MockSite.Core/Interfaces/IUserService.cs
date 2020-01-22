@@ -1,6 +1,5 @@
 #region
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MockSite.Core.DTOs;
 using MockSite.Core.Entities;
@@ -11,7 +10,7 @@ namespace MockSite.Core.Interfaces
 {
     public interface IUserService
     {
-        Task Create(UserDto userDto);
+        Task<int> Create(UserDto userDto);
 
         Task Update(UserDto userDto);
 
@@ -19,6 +18,10 @@ namespace MockSite.Core.Interfaces
 
         Task<UserEntity> GetById(int id);
 
-        Task<IEnumerable<UserEntity>> GetAll();
+        Task<UserEntity[]> GetAll();
+
+        Task<UserEntity[]> GetByCondition(string code = null,string name = null, string email = null);
+
+        Task<UserEntity> Authenticate(string name, string password);
     }
 }

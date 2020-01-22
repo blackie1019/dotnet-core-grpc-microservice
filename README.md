@@ -55,22 +55,16 @@ MockSite Project Structure
 2. intsall `dotnet tool cake`
 
     ```bash
-    dotnet tool install -g Cake.Tool --version 0.30.0
+    dotnet tool install -g Cake.Tool --version 0.35.0
     ```
 
-3. install `dotnet tool gitversion`
-
-    ```bash
-    dotnet tool install --global GitVersion.Tool --version 4.0.1-beta1-47
-    ```
-
-4. install dotnet core https dev cert
+3. install dotnet core https dev cert
 
     ```bash
     dotnet dev-certs https --trust
     ```
 
-5. Node
+4. Node
 
     Path of front-end : `/src/MockSite.Web/ClientApp`
 
@@ -90,7 +84,7 @@ MockSite Project Structure
 
 Please see [database preparation README file](database/README.md) on DataBase folder.
 
-### Step 2 - Build Code
+### Step 2 - Build Code (Optional)
 
  `dotnet build` command of project is depend on **cake** and **gitversion** with dotnet tools.
 
@@ -105,7 +99,7 @@ dotnet cake build.cake --target="Default-Build"
 **Get Version with gitversion**
 
 ```bash
-dotnet gitversion > version.json
+docker run --rm -v "$(pwd):/repo" gittools/gitversion:4.0.1-beta1-61-linux-debian-netcoreapp2.1 /repo > version.json
 ```
 
 **Default build-task to define flow of publish**
@@ -212,7 +206,18 @@ Lanuch [Consul UI](http://localhost:18500) with port 18500.
 
 3. Edit the json in text box and Click **Save** button.
 
-    ![Consul config editor](images/Consul-2.jpg)
+    ![Consul config editor](images/Consul-2.png)
+
+---
+### Service Storage Introduce
+
+1. UserService負責處理會員相關資料透過configuration控制儲存體(0:Maria;1:Mongo)
+
+   ![userStorageControl](images/userStorageControl.png)
+
+2. CurrencyService使用Redis搭配lua實現存取匯率相關資料
+
+3. LocalizationService使用mongoDB存取多國語系相關資料
 
 ---
 

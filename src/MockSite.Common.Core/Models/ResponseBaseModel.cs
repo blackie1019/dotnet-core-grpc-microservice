@@ -9,34 +9,25 @@ namespace MockSite.Common.Core.Models
 {
     public class ResponseBaseModel<T>
     {
-        public Dictionary<string, string> Carrier { get; set; }
-
-        public ResponseCode Code { get; private set; }
-
-        public T Data { get; private set; }
-
-        public string Msg { get; private set; }
-
-        public ResponseBaseModel()
+        public IReadOnlyDictionary<string, string> Carrier
         {
-            Code = ResponseCode.GeneralError;
+            get { return _carrier ?? (_carrier = new Dictionary<string, string>()); }
         }
 
-        public void SetCode(ResponseCode code, string msg = null)
-        {
-            Code = code;
-            Msg = msg ?? code.ToString();
-        }
+        private IReadOnlyDictionary<string, string> _carrier;
 
-        public void SetData(T data)
+        public ResponseCode Code { get; }
+
+        public T Data { get; }
+
+        public string Message { get; }
+        
+        public ResponseBaseModel(ResponseCode responseCode, T data,string message = "", Dictionary<string,string> carrier = null)
         {
+            Code = responseCode;
             Data = data;
-            SetCode(ResponseCode.Success);
-        }
-
-        public void SetErrorMsg(string msg, ResponseCode code = ResponseCode.GeneralError)
-        {
-            SetCode(code, msg);
+            Message = message;
+            _carrier = carrier;
         }
     }
 }

@@ -1,12 +1,12 @@
 #region
 
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MockSite.Common.Core.Constants.DomainService;
-using MockSite.Core.DTOs;
+using MockSite.Common.Core.Utilities;
 using MockSite.Core.Entities;
 using MockSite.Core.Interfaces;
 using MockSite.Core.Utilities;
@@ -16,61 +16,108 @@ using MongoDB.Driver;
 
 namespace MockSite.Core.Repositories
 {
-    public class MongoUserRepository : IMongoRepository
+    public class MongoUserRepository : IMongoUserRepository
     {
-        private readonly string _dbString;
         private readonly string _collectionString;
         private readonly MongoClient _connection;
+        private readonly string _dbString;
 
-        public MongoUserRepository(ILogger<MongoUserRepository> logger, IConfiguration config)
+        public MongoUserRepository(ILogger<MongoUserRepository> logger, IConfiguration consul)
         {
-            var connectionString = config.GetSection(DbConnectionConst.MongoTestKey).Value;
-            _dbString = config.GetSection(DbConnectionConst.MongoDbKey).Value;
-            _collectionString = config.GetSection(DbConnectionConst.MongoCollectionKey).Value;
+            var connectionString = consul[DbConnectionConst.MongoTestKey];
+            _dbString = consul[DbConnectionConst.MongoDbKey];
+            _collectionString = consul[DbConnectionConst.MongoCollectionKey];
             _connection = new MongoClient(connectionString);
             logger.LogInformation("log init");
             Mapper.Initialize(cfg => cfg.AddProfile<MongoMapperProfile>());
         }
 
-        public async Task Create(UserDto userDto)
+        public async Task<int> Create(UserEntity userEntity)
         {
-            var db = _connection.GetDatabase(_dbString);
-            var collection = db.GetCollection<UserDto>(_collectionString);
-            await collection.InsertOneAsync(userDto);
+            var collection = GetCollection();
+            await collection.InsertOneAsync(userEntity);
+
+            return userEntity.Id;
         }
 
-        public async Task Update(UserDto userDto)
+        public async Task Update(UserEntity userEntity)
         {
-            var db = _connection.GetDatabase(_dbString);
-            var collection = db.GetCollection<UserDto>(_collectionString);
-            var update = new UpdateDefinitionBuilder<UserDto>()
-                .Set(i => i.Name, userDto.Name)
-                .Set(i => i.Email, userDto.Email);
-            await collection.UpdateOneAsync(i => i.Id == userDto.Id, update);
+            var collection = GetCollection();
+            var update = new UpdateDefinitionBuilder<UserEntity>()
+                .Set(i => i.Name, userEntity.Name)
+                .Set(i => i.Email, userEntity.Email);
+            await collection.UpdateOneAsync(i => i.Id == userEntity.Id, update);
         }
 
         public async Task Delete(int id)
         {
-            var db = _connection.GetDatabase(_dbString);
-            var collection = db.GetCollection<UserDto>(_collectionString);
+            var collection = GetCollection();
             await collection.DeleteOneAsync(a => a.Id == id);
         }
 
-        public async Task<IEnumerable<UserEntity>> GetAll()
+        public async Task<UserEntity[]> GetAll()
         {
-            var db = _connection.GetDatabase(_dbString);
-            var collection = db.GetCollection<UserDto>(_collectionString);
-            var documents = await collection.Find(_ => true).ToListAsync();
-            return Mapper.Map<List<UserDto>, List<UserEntity>>(documents);
+            var collection = GetCollection();
+            var documents = (await collection.FindAsync(_ => true)).ToEnumerable().ToArray();
+
+            return documents;
         }
 
         public async Task<UserEntity> GetById(int id)
         {
-            var db = _connection.GetDatabase(_dbString);
-            var collection = db.GetCollection<UserDto>(_collectionString);
-            var filter = Builders<UserDto>.Filter.Eq("Id", id);
+            var collection = GetCollection();
+            var filter = Builders<UserEntity>.Filter.Eq("Id", id);
             var document = await collection.Find(filter).FirstOrDefaultAsync();
-            return Mapper.Map<UserDto, UserEntity>(document);
+
+            return document;
+        }
+
+        private IMongoCollection<UserEntity> GetCollection()
+        {
+            var db = _connection.GetDatabase(_dbString);
+            var collection = db.GetCollection<UserEntity>(_collectionString);
+
+            return collection;
+        }
+
+        public async Task<UserEntity[]> GetByCondition(string code = null, string name = null, string email = null)
+        {
+            var collection = GetCollection();
+            var builder = Builders<UserEntity>.Filter;
+            var filter = builder.Empty;
+
+            if (code.HasValue())
+            {
+                filter = builder.Eq(u => u.Code, code);
+            }
+
+            if (name.HasValue())
+            {
+                if (filter != builder.Empty)
+                {
+                    filter &= builder.Eq(u => u.Name, name);
+                }
+                else
+                {
+                    filter = builder.Eq(u => u.Name, name);
+                }
+            }
+            
+            if (email.HasValue())
+            {
+                if (filter != builder.Empty)
+                {
+                    filter &= builder.Eq(u => u.Email, email);
+                }
+                else
+                {
+                    filter = builder.Eq(u => u.Email, email);
+                }
+            }
+
+            var document = (await collection.FindAsync(filter)).ToEnumerable().ToArray();
+
+            return document;
         }
     }
 }

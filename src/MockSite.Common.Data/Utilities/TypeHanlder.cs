@@ -21,7 +21,7 @@ namespace MockSite.Common.Data.Utilities
         //將值存回 db 時由 object 轉為 json
         public void SetValue(IDbDataParameter parameter, object value)
         {
-            parameter.Value = (value == null) ? (object) DBNull.Value : JsonConvert.SerializeObject(value);
+            parameter.Value = value == null ? (object) DBNull.Value : JsonConvert.SerializeObject(value);
             parameter.DbType = DbType.String;
         }
     }

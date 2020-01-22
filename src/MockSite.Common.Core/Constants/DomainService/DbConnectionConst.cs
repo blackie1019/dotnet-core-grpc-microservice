@@ -6,7 +6,7 @@ namespace MockSite.Common.Core.Constants.DomainService
         public const string MongoTestKey = "MockSite:DomainService:MongoTest:DbConnection";
         public const string MongoDbKey = "MockSite:DomainService:MongoTest:Database";
         public const string MongoCollectionKey = "MockSite:DomainService:MongoTest:Collection";
-        public const string UseDbKey = "MockSite:DomainService:UseDb";
-        public const string RedisKey = "MockSite:DomainService:RedisTest:RedisDbConnection";
+        public const string UserUseDbKey = "MockSite:DomainService:UserUseDb";
+        public const string RedisKey = "MockSite:DomainService:RedisTest:DbConnection";
     }
 }

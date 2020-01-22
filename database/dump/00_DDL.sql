@@ -31,6 +31,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `sp_User_CreateUser`(
 BEGIN
   SET OUT_ReturnValue = 0;
   INSERT INTO User (Code, Name, Email, Password) values (IN_Code, IN_Name, IN_Email, IN_Password);
+  SELECT LAST_INSERT_ID() as ID;
   SET OUT_ReturnValue = 1;
 END ;;
 DELIMITER ;
@@ -60,6 +61,27 @@ BEGIN
 END ;;
 DELIMITER ;
 
+-- Get User By Condition --
+DELIMITER ;;
+
+DROP PROCEDURE IF EXISTS `sp_User_GetUsersByCondition`;;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_User_GetUsersByCondition`(
+  IN  IN_Code         varchar(20),
+  IN  IN_Name         varchar(40),
+  IN  IN_Email        varchar(160),
+  OUT OUT_ReturnValue INT
+)
+BEGIN
+  SET OUT_ReturnValue = 0;
+  SELECT Id, Code, Name, Email, Password FROM User
+  WHERE (IN_Code IS NULL OR Code LIKE CONCAT(IN_Code,'%'))
+  AND (IN_Name IS NULL OR Name Like CONCAT(IN_Name,'%'))
+  AND (IN_Email IS NULL OR Email LIKE CONCAT(IN_Email,'%'));
+  SET OUT_ReturnValue = 1;
+END;;
+
+DELIMITER ;
 -- Update User --
 
 DELIMITER ;;

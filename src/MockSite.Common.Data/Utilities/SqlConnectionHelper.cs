@@ -8,16 +8,19 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 
 #endregion
 
 namespace MockSite.Common.Data.Utilities
 {
-    public static class SqlConnectionHelper
+    public class SqlConnectionHelper
     {
-        static SqlConnectionHelper()
+        private readonly ILoggerProvider _loggerProvider;
+        public SqlConnectionHelper(ILoggerProvider loggerProvider)
         {
+            _loggerProvider = loggerProvider;
             var executedType = new HashSet<Type>();
             var iTaggableTypeInfo = typeof(ITaggable).GetTypeInfo();
             var allAssembly = AppDomain.CurrentDomain.GetAssemblies().Where(a =>
@@ -45,59 +48,71 @@ namespace MockSite.Common.Data.Utilities
             SqlMapper.AddTypeHandler(typeof(IEnumerable<int>), new TypeHandler());
         }
 
-        public static async ValueTask<int> ExecuteNonQueryAsync(
-            this MySqlConnection conn,
+        public async ValueTask<int> ExecuteNonQueryAsync(
+            MySqlConnection conn,
             string spName,
             DynamicParameters parameters,
             MySqlTransaction transaction
         )
         {
             var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
-            var result = await new ProfiledDbConnection(conn).ExecuteAsync(cmd);
+            var result = await new ProfiledDbConnection(_loggerProvider,conn).ExecuteAsync(cmd);
+
             return result;
         }
 
-        public static async Task<IEnumerable<T>> ExecuteQueryAsync<T>(
-            this MySqlConnection conn,
+        public async Task<IEnumerable<T>> ExecuteQueryBySqlAsync<T>(
+            MySqlConnection conn,
+            string sql,
+            DynamicParameters parameters,
+            IDbTransaction transaction)
+        {
+            var cmd = new CommandDefinition(sql,parameters,transaction,commandType: CommandType.Text);
+            var result = await new ProfiledDbConnection(_loggerProvider,conn).QueryAsync<T>(cmd);
+
+            return result;
+        }
+
+        public async Task<T[]> ExecuteQueryAsync<T>(
+            MySqlConnection conn,
             string spName,
             DynamicParameters parameters,
             IDbTransaction transaction
         )
         {
             var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
-            var result = await new ProfiledDbConnection(conn).QueryAsync<T>(cmd);
-            return result;
+            var result = await new ProfiledDbConnection(_loggerProvider,conn).QueryAsync<T>(cmd);
+
+            return result.ToArray();
         }
 
-        public static async Task<T> ExecuteQuerySingleAsync<T>(
-            this MySqlConnection conn,
+        public async Task<T> ExecuteQuerySingleAsync<T>(
+            MySqlConnection conn,
             string spName,
             DynamicParameters parameters,
             IDbTransaction transaction
         )
         {
             var cmd = new CommandDefinition(spName, parameters, transaction, commandType: CommandType.StoredProcedure);
-            var result = await new ProfiledDbConnection(conn).QuerySingleOrDefaultAsync<T>(cmd);
+            var result = await new ProfiledDbConnection(_loggerProvider,conn).QuerySingleOrDefaultAsync<T>(cmd);
+
             return result;
         }
 
-        public static async Task<DbDataReader> ExecuteReaderAsync(
-            this MySqlConnection conn,
+        public async Task<DbDataReader> ExecuteReaderAsync(
+            MySqlConnection conn,
             string spName,
             IEnumerable<MySqlParameter> parameters,
             MySqlTransaction transaction
         )
         {
-            using (var cmd = new ProfiledDbConnection(conn).CreateCommand())
+            using (var cmd = new ProfiledDbConnection(_loggerProvider,conn).CreateCommand())
             {
                 cmd.CommandText = spName;
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Transaction = transaction;
 
-                if (parameters != null)
-                {
-                    cmd.Parameters.AddRange(parameters.ToArray());
-                }
+                if (parameters != null) cmd.Parameters.AddRange(parameters.ToArray());
 
                 return await cmd.ExecuteReaderAsync();
             }

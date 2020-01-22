@@ -1,11 +1,10 @@
 #region
 
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using MockSite.Common.Core.Constants.DomainService;
 using MockSite.Common.Data.Utilities;
-using MockSite.Core.DTOs;
 using MockSite.Core.Entities;
 using MockSite.Core.Interfaces;
 using StackExchange.Redis;
@@ -15,32 +14,34 @@ using LuaScript = MockSite.Core.Lua.LuaScript;
 
 namespace MockSite.Core.Repositories
 {
-    public class RedisUserRepository : IRedisRepository
+    public class RedisUserRepository : IRedisUserRepository
     {
         private const string Prefix = "Users:";
         private readonly LuaScript _luaScript;
 
         public RedisUserRepository(IConfiguration config, RedisConnectHelper redisConn)
         {
-            var conn = config.GetSection(DbConnectionConst.RedisKey).Value;
+            var conn = config[DbConnectionConst.RedisKey];
             _luaScript = new LuaScript(redisConn.CreateConnection(conn), conn);
         }
 
-        public async Task Create(UserDto userDto)
+        public async Task<int> Create(UserEntity userEntity)
         {
             await _luaScript.ExecLuaScript(
                 LuaScript.Create,
-                new RedisKey[] {Prefix + userDto.Id},
-                new RedisValue[] {userDto.Id, userDto.Code, userDto.Email, userDto.Name, userDto.Password}
+                new RedisKey[] {Prefix + userEntity.Id},
+                new RedisValue[] {userEntity.Id, userEntity.Code, userEntity.Email, userEntity.Name, userEntity.Password}
             );
+
+            return userEntity.Id;
         }
 
-        public async Task Update(UserDto userDto)
+        public async Task Update(UserEntity userEntity)
         {
             await _luaScript.ExecLuaScript(
                 LuaScript.Update,
-                new RedisKey[] {Prefix + userDto.Id},
-                new RedisValue[] {userDto.Email, userDto.Name}
+                new RedisKey[] {Prefix + userEntity.Id},
+                new RedisValue[] {userEntity.Email, userEntity.Name}
             );
         }
 
@@ -54,9 +55,9 @@ namespace MockSite.Core.Repositories
             await _luaScript.ExecLuaScript(LuaScript.DeleteAll, new RedisKey[] {Prefix});
         }
 
-        public Task<IEnumerable<UserEntity>> GetAll()
+        public Task<UserEntity[]> GetAll()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<UserEntity> GetById(int id)
@@ -65,6 +66,10 @@ namespace MockSite.Core.Repositories
                 LuaScript.GetById,
                 new RedisKey[] {Prefix + id}
             );
+
+            if (data.Length == 0)
+                return null;
+
             return new UserEntity
             {
                 Id = id,
