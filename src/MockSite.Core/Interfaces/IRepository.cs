@@ -1,24 +1,18 @@
-#region
-
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using MockSite.Core.DTOs;
-using MockSite.Core.Entities;
-
-#endregion
 
 namespace MockSite.Core.Interfaces
 {
-    public interface IRepository
+    public interface IRepository<TEntity, in TKey>
+    where TEntity: class
     {
-        Task Create(UserDto userDto);
+        Task<int> Create(TEntity entity);
 
-        Task Update(UserDto userDto);
+        Task Update(TEntity entity);
 
-        Task Delete(int id);
+        Task Delete(TKey key);
 
-        Task<IEnumerable<UserEntity>> GetAll();
+        Task<TEntity[]> GetAll();
 
-        Task<UserEntity> GetById(int id);
+        Task<TEntity> GetById(TKey id);
     }
 }

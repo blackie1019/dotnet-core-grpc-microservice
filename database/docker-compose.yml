@@ -2,7 +2,7 @@ version: '3'
 
 services:
   TestDB:
-    image: mariadb:10.3.15
+    image: mariadb:10.4.11
     ports:
       - "3326:3306"
     environment:
@@ -21,7 +21,7 @@ services:
 
   consul-sb-mocksite:
     container_name: consul-sb-mocksite
-    image: consul:1.5.1
+    image: consul:1.6.2
     ports:
       - "18500:8500"
     command: "agent -dev -ui -client=0.0.0.0 -bind=0.0.0.0"

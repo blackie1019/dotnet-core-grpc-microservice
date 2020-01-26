@@ -13,47 +13,57 @@ namespace MockSite.Message {
     static readonly string __ServiceName = "Account.UserService";
 
     static readonly grpc::Marshaller<global::MockSite.Message.CreateUserMessage> __Marshaller_Account_CreateUserMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.CreateUserMessage.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::MockSite.Message.BaseResponse> __Marshaller_Account_BaseResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.BaseResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::MockSite.Message.Empty> __Marshaller_Account_Empty = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.Empty.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::MockSite.Message.Users> __Marshaller_Account_Users = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.Users.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::MockSite.Message.QueryUserMessage> __Marshaller_Account_QueryUserMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.QueryUserMessage.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::MockSite.Message.User> __Marshaller_Account_User = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.User.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.QueryUsersMessage> __Marshaller_Account_QueryUsersMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.QueryUsersMessage.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.UsersResponse> __Marshaller_Account_UsersResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.UsersResponse.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.AuthenticateMessage> __Marshaller_Account_AuthenticateMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.AuthenticateMessage.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.AuthenticateResponse> __Marshaller_Account_AuthenticateResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.AuthenticateResponse.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.QueryUserMessage> __Marshaller_Account_QueryUserMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.QueryUserMessage.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.UserResponse> __Marshaller_Account_UserResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.UserResponse.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::MockSite.Message.UpdateUserMessage> __Marshaller_Account_UpdateUserMessage = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.UpdateUserMessage.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::MockSite.Message.BaseResponse> __Marshaller_Common_BaseResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::MockSite.Message.BaseResponse.Parser.ParseFrom);
 
-    static readonly grpc::Method<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.BaseResponse> __Method_Create = new grpc::Method<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.BaseResponse>(
+    static readonly grpc::Method<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.User> __Method_Create = new grpc::Method<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.User>(
         grpc::MethodType.Unary,
         __ServiceName,
         "Create",
         __Marshaller_Account_CreateUserMessage,
-        __Marshaller_Account_BaseResponse);
+        __Marshaller_Account_User);
 
-    static readonly grpc::Method<global::MockSite.Message.Empty, global::MockSite.Message.Users> __Method_GetAll = new grpc::Method<global::MockSite.Message.Empty, global::MockSite.Message.Users>(
+    static readonly grpc::Method<global::MockSite.Message.QueryUsersMessage, global::MockSite.Message.UsersResponse> __Method_GetAll = new grpc::Method<global::MockSite.Message.QueryUsersMessage, global::MockSite.Message.UsersResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "GetAll",
-        __Marshaller_Account_Empty,
-        __Marshaller_Account_Users);
+        __Marshaller_Account_QueryUsersMessage,
+        __Marshaller_Account_UsersResponse);
 
-    static readonly grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.User> __Method_Get = new grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.User>(
+    static readonly grpc::Method<global::MockSite.Message.AuthenticateMessage, global::MockSite.Message.AuthenticateResponse> __Method_Authenticate = new grpc::Method<global::MockSite.Message.AuthenticateMessage, global::MockSite.Message.AuthenticateResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Authenticate",
+        __Marshaller_Account_AuthenticateMessage,
+        __Marshaller_Account_AuthenticateResponse);
+
+    static readonly grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.UserResponse> __Method_Get = new grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "Get",
         __Marshaller_Account_QueryUserMessage,
-        __Marshaller_Account_User);
+        __Marshaller_Account_UserResponse);
 
     static readonly grpc::Method<global::MockSite.Message.UpdateUserMessage, global::MockSite.Message.BaseResponse> __Method_Update = new grpc::Method<global::MockSite.Message.UpdateUserMessage, global::MockSite.Message.BaseResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "Update",
         __Marshaller_Account_UpdateUserMessage,
-        __Marshaller_Account_BaseResponse);
+        __Marshaller_Common_BaseResponse);
 
     static readonly grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.BaseResponse> __Method_Delete = new grpc::Method<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.BaseResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "Delete",
         __Marshaller_Account_QueryUserMessage,
-        __Marshaller_Account_BaseResponse);
+        __Marshaller_Common_BaseResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -62,19 +72,25 @@ namespace MockSite.Message {
     }
 
     /// <summary>Base class for server-side implementations of UserService</summary>
+    [grpc::BindServiceMethod(typeof(UserService), "BindService")]
     public abstract partial class UserServiceBase
     {
-      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.BaseResponse> Create(global::MockSite.Message.CreateUserMessage request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.User> Create(global::MockSite.Message.CreateUserMessage request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
-      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.Users> GetAll(global::MockSite.Message.Empty request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.UsersResponse> GetAll(global::MockSite.Message.QueryUsersMessage request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
-      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.User> Get(global::MockSite.Message.QueryUserMessage request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.AuthenticateResponse> Authenticate(global::MockSite.Message.AuthenticateMessage request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task<global::MockSite.Message.UserResponse> Get(global::MockSite.Message.QueryUserMessage request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -96,7 +112,7 @@ namespace MockSite.Message {
     {
       /// <summary>Creates a new client for UserService</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
-      public UserServiceClient(grpc::Channel channel) : base(channel)
+      public UserServiceClient(grpc::ChannelBase channel) : base(channel)
       {
       }
       /// <summary>Creates a new client for UserService that uses a custom <c>CallInvoker</c>.</summary>
@@ -114,51 +130,67 @@ namespace MockSite.Message {
       {
       }
 
-      public virtual global::MockSite.Message.BaseResponse Create(global::MockSite.Message.CreateUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::MockSite.Message.User Create(global::MockSite.Message.CreateUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Create(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual global::MockSite.Message.BaseResponse Create(global::MockSite.Message.CreateUserMessage request, grpc::CallOptions options)
+      public virtual global::MockSite.Message.User Create(global::MockSite.Message.CreateUserMessage request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_Create, null, options, request);
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.BaseResponse> CreateAsync(global::MockSite.Message.CreateUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.User> CreateAsync(global::MockSite.Message.CreateUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return CreateAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.BaseResponse> CreateAsync(global::MockSite.Message.CreateUserMessage request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.User> CreateAsync(global::MockSite.Message.CreateUserMessage request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_Create, null, options, request);
       }
-      public virtual global::MockSite.Message.Users GetAll(global::MockSite.Message.Empty request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::MockSite.Message.UsersResponse GetAll(global::MockSite.Message.QueryUsersMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAll(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual global::MockSite.Message.Users GetAll(global::MockSite.Message.Empty request, grpc::CallOptions options)
+      public virtual global::MockSite.Message.UsersResponse GetAll(global::MockSite.Message.QueryUsersMessage request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_GetAll, null, options, request);
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.Users> GetAllAsync(global::MockSite.Message.Empty request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.UsersResponse> GetAllAsync(global::MockSite.Message.QueryUsersMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAllAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.Users> GetAllAsync(global::MockSite.Message.Empty request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.UsersResponse> GetAllAsync(global::MockSite.Message.QueryUsersMessage request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetAll, null, options, request);
       }
-      public virtual global::MockSite.Message.User Get(global::MockSite.Message.QueryUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::MockSite.Message.AuthenticateResponse Authenticate(global::MockSite.Message.AuthenticateMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return Authenticate(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::MockSite.Message.AuthenticateResponse Authenticate(global::MockSite.Message.AuthenticateMessage request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Authenticate, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.AuthenticateResponse> AuthenticateAsync(global::MockSite.Message.AuthenticateMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AuthenticateAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.AuthenticateResponse> AuthenticateAsync(global::MockSite.Message.AuthenticateMessage request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Authenticate, null, options, request);
+      }
+      public virtual global::MockSite.Message.UserResponse Get(global::MockSite.Message.QueryUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Get(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual global::MockSite.Message.User Get(global::MockSite.Message.QueryUserMessage request, grpc::CallOptions options)
+      public virtual global::MockSite.Message.UserResponse Get(global::MockSite.Message.QueryUserMessage request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_Get, null, options, request);
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.User> GetAsync(global::MockSite.Message.QueryUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.UserResponse> GetAsync(global::MockSite.Message.QueryUserMessage request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
-      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.User> GetAsync(global::MockSite.Message.QueryUserMessage request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::MockSite.Message.UserResponse> GetAsync(global::MockSite.Message.QueryUserMessage request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_Get, null, options, request);
       }
@@ -208,6 +240,7 @@ namespace MockSite.Message {
       return grpc::ServerServiceDefinition.CreateBuilder()
           .AddMethod(__Method_Create, serviceImpl.Create)
           .AddMethod(__Method_GetAll, serviceImpl.GetAll)
+          .AddMethod(__Method_Authenticate, serviceImpl.Authenticate)
           .AddMethod(__Method_Get, serviceImpl.Get)
           .AddMethod(__Method_Update, serviceImpl.Update)
           .AddMethod(__Method_Delete, serviceImpl.Delete).Build();
@@ -219,9 +252,10 @@ namespace MockSite.Message {
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
     public static void BindService(grpc::ServiceBinderBase serviceBinder, UserServiceBase serviceImpl)
     {
-      serviceBinder.AddMethod(__Method_Create, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.BaseResponse>(serviceImpl.Create));
-      serviceBinder.AddMethod(__Method_GetAll, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.Empty, global::MockSite.Message.Users>(serviceImpl.GetAll));
-      serviceBinder.AddMethod(__Method_Get, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.User>(serviceImpl.Get));
+      serviceBinder.AddMethod(__Method_Create, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.CreateUserMessage, global::MockSite.Message.User>(serviceImpl.Create));
+      serviceBinder.AddMethod(__Method_GetAll, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.QueryUsersMessage, global::MockSite.Message.UsersResponse>(serviceImpl.GetAll));
+      serviceBinder.AddMethod(__Method_Authenticate, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.AuthenticateMessage, global::MockSite.Message.AuthenticateResponse>(serviceImpl.Authenticate));
+      serviceBinder.AddMethod(__Method_Get, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.UserResponse>(serviceImpl.Get));
       serviceBinder.AddMethod(__Method_Update, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.UpdateUserMessage, global::MockSite.Message.BaseResponse>(serviceImpl.Update));
       serviceBinder.AddMethod(__Method_Delete, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::MockSite.Message.QueryUserMessage, global::MockSite.Message.BaseResponse>(serviceImpl.Delete));
     }

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package Account; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+option csharp_namespace = "MockSite.Message";
+
+message Currency {
+  string CurrencyCode = 1;
+  string CurrencyRate = 2;
+}
+
+message CreateCurrency {
+  string CurrencyCode = 1;
+  string CurrencyRate = 2;
+  bool IfExistUpdateRate = 3;
+}
+
+message UpdateCurrency {
+  string CurrencyCode = 1;
+  string CurrencyRate = 2;
+}
+
+message Currencies {
+  repeated Currency Value = 1;
+}
+
+message QueryCurrencyMessage {
+  string CurrencyCode = 1;
+}
+
+

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package Account; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+option csharp_namespace = "MockSite.Message";
+
+message Language {
+  string LangCode = 1;
+  string DisplayValue = 2;
+  string DisplayKey = 3;
+}
+
+message LanguageSet {
+  repeated ResponseLanguage LanguageSets = 1;
+  string DisplayKey = 2;
+}
+
+message Languages {
+  repeated LanguageSet Value = 1;
+}
+
+message QueryLanguageMessage {
+  string DisplayKey = 1;
+}
+
+message ResponseLanguage {
+  string LangCode = 1;
+  string DisplayValue = 2;
+}
+

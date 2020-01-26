@@ -2,33 +2,40 @@
 
 using System;
 using System.Reflection;
-using MockSite.Common.Logging.Utilities;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+using MockSite.Common.Logging.Utilities.LogDetail;
+using MockSite.Common.Logging;
 
 #endregion
 
 namespace MockSite.DomainService.Utilities
 {
-    public class MethodTimeLogger
+    public static class MethodTimeLogger
     {
+        private static ILogger _logger;
+
         public static void Log(MethodBase methodBase, long milliseconds, string message)
         {
             try
             {
-                var perfDetail = LoggerHelper.Instance.GetPerformanceDetail();
-                perfDetail.Target = $"{methodBase.DeclaringType.Name}/{methodBase.Name}";
-                perfDetail.Duration = milliseconds;
-                if (!string.IsNullOrWhiteSpace(message))
+                var detail = new PerformanceDetail
                 {
-                    perfDetail.Argument = JsonConvert.DeserializeObject(message);
-                }
+                    Target = $"{methodBase.DeclaringType.Name}/{methodBase.Name}", Duration = milliseconds
+                };
+                if (!string.IsNullOrWhiteSpace(message)) detail.Arguments = message;
 
-                LoggerHelper.Instance.Performance(perfDetail);
+                _logger.Performance( detail);
             }
             catch (Exception ex)
             {
-                LoggerHelper.Instance.Error(ex);
+                _logger.Error(ex);
             }
         }
+        
+        public static void SetLogger(ILoggerProvider loggerProvider)
+        {
+            _logger = _logger ?? loggerProvider.CreateLogger(nameof(MethodTimeLogger));
+        }
+
     }
 }

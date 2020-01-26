@@ -9,7 +9,7 @@ using System.Data.Common;
 namespace MockSite.Common.Data
 {
     /// <summary>
-    /// The profiled database transaction.
+    ///     The profiled database transaction.
     /// </summary>
     public class ProfiledDbTransaction : DbTransaction
     {
@@ -17,11 +17,14 @@ namespace MockSite.Common.Data
         private DbTransaction _transaction;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProfiledDbTransaction"/> class.
+        ///     Initializes a new instance of the <see cref="ProfiledDbTransaction" /> class.
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <param name="connection">The connection.</param>
-        /// <exception cref="ArgumentNullException">Throws when the <paramref name="transaction"/> or <paramref name="connection"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">
+        ///     Throws when the <paramref name="transaction" /> or
+        ///     <paramref name="connection" /> is <c>null</c>.
+        /// </exception>
         public ProfiledDbTransaction(DbTransaction transaction, ProfiledDbConnection connection)
         {
             _transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
@@ -29,40 +32,52 @@ namespace MockSite.Common.Data
         }
 
         /// <summary>
-        /// Gets the database connection.
+        ///     Gets the database connection.
         /// </summary>
-        protected override DbConnection DbConnection => _connection;
+        protected override DbConnection DbConnection
+        {
+            get { return _connection; }
+        }
 
         /// <summary>
-        /// Gets the wrapped transaction.
+        ///     Gets the wrapped transaction.
         /// </summary>
-        public DbTransaction WrappedTransaction => _transaction;
+        public DbTransaction WrappedTransaction
+        {
+            get { return _transaction; }
+        }
 
         /// <summary>
-        /// Gets the isolation level.
+        ///     Gets the isolation level.
         /// </summary>
-        public override IsolationLevel IsolationLevel => _transaction.IsolationLevel;
+        public override IsolationLevel IsolationLevel
+        {
+            get { return _transaction.IsolationLevel; }
+        }
 
         /// <summary>
-        /// Commits the database transaction.
+        ///     Commits the database transaction.
         /// </summary>
-        public override void Commit() => _transaction.Commit();
+        public override void Commit()
+        {
+            _transaction.Commit();
+        }
 
         /// <summary>
-        /// Rolls back a transaction from a pending state.
+        ///     Rolls back a transaction from a pending state.
         /// </summary>
-        public override void Rollback() => _transaction.Rollback();
+        public override void Rollback()
+        {
+            _transaction.Rollback();
+        }
 
         /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="DbTransaction"/>.
+        ///     Releases the unmanaged resources used by the <see cref="DbTransaction" />.
         /// </summary>
         /// <param name="disposing">false if being called from a <c>finalizer</c></param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _transaction?.Dispose();
-            }
+            if (disposing) _transaction?.Dispose();
             _transaction = null;
             _connection = null;
             base.Dispose(disposing);

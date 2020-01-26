@@ -5,7 +5,7 @@
     "experimentalDecorators": true,
     "target": "es2017",
     "paths": {
-      "@app/*": ["./src/*"],
+      "@app/*": ["./src/*"]
     }
   },
   "exclude": ["build", "node_modules"]

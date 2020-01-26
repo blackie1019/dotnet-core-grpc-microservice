@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MockSite.Common.Logging.Utilities;
+using Microsoft.Extensions.Logging;
+using MockSite.Common.Logging;
+using MockSite.Common.Logging.Utilities.LogDetail;
 
 #endregion
 
@@ -18,11 +21,14 @@ namespace MockSite.Common.Data
         private DbCommand _command;
         private DbConnection _connection;
         private DbTransaction _transaction;
+        private readonly ILogger _logger;
 
-        public ProfiledDbCommand(DbCommand command, DbConnection connection)
+        public ProfiledDbCommand(ILogger logger, DbCommand command, DbConnection connection)
         {
             _command = command ?? throw new ArgumentNullException(nameof(command));
 
+            _logger = logger;
+            
             if (connection == null) return;
             _connection = connection;
             UnwrapAndAssignConnection(connection);
@@ -30,25 +36,25 @@ namespace MockSite.Common.Data
 
         public override string CommandText
         {
-            get => _command.CommandText;
-            set => _command.CommandText = value;
+            get { return _command.CommandText; }
+            set { _command.CommandText = value; }
         }
 
         public override int CommandTimeout
         {
-            get => _command.CommandTimeout;
-            set => _command.CommandTimeout = value;
+            get { return _command.CommandTimeout; }
+            set { _command.CommandTimeout = value; }
         }
 
         public override CommandType CommandType
         {
-            get => _command.CommandType;
-            set => _command.CommandType = value;
+            get { return _command.CommandType; }
+            set { _command.CommandType = value; }
         }
 
         protected override DbConnection DbConnection
         {
-            get => _connection;
+            get { return _connection; }
             set
             {
                 _connection = value;
@@ -56,82 +62,82 @@ namespace MockSite.Common.Data
             }
         }
 
-        private void UnwrapAndAssignConnection(DbConnection value)
+        protected override DbParameterCollection DbParameterCollection
         {
-            if (value is ProfiledDbConnection profiledConn)
-            {
-                _command.Connection = profiledConn.WrappedConnection;
-            }
-            else
-            {
-                _command.Connection = value;
-            }
+            get { return _command.Parameters; }
         }
-
-        protected override DbParameterCollection DbParameterCollection => _command.Parameters;
 
         protected override DbTransaction DbTransaction
         {
-            get => _transaction;
+            get { return _transaction; }
             set
             {
                 _transaction = value;
-                _command.Transaction = !(value is ProfiledDbTransaction awesomeTran) ? value : awesomeTran.WrappedTransaction;
+                _command.Transaction = !(value is ProfiledDbTransaction awesomeTran)
+                    ? value
+                    : awesomeTran.WrappedTransaction;
             }
         }
 
         public override bool DesignTimeVisible
         {
-            get => _command.DesignTimeVisible;
-            set => _command.DesignTimeVisible = value;
+            get { return _command.DesignTimeVisible; }
+            set { _command.DesignTimeVisible = value; }
         }
 
         public override UpdateRowSource UpdatedRowSource
         {
-            get => _command.UpdatedRowSource;
-            set => _command.UpdatedRowSource = value;
+            get { return _command.UpdatedRowSource; }
+            set { _command.UpdatedRowSource = value; }
         }
 
+        public DbCommand InternalCommand
+        {
+            get { return _command; }
+        }
+        
         private void LogElapsed(Stopwatch watch)
         {
             watch.Stop();
-            var perfDetail = LoggerHelper.Instance.GetPerformanceDetail();
-
-            perfDetail.Parameter = GetParametersForLogging();
-            perfDetail.Target = _command.CommandText;
-            perfDetail.Duration = watch.ElapsedMilliseconds;
-            LoggerHelper.Instance.Performance(perfDetail);
-        }
-
-        private Dictionary<string, string> GetParametersForLogging()
-        {
-            if (_command.Parameters.Count > 0)
+            var detail = new PerformanceDetail
             {
-                var parameterDic = new Dictionary<string, string>();
-                foreach (DbParameter parameter in _command.Parameters)
-                {
-                    parameterDic.Add(parameter.ParameterName, parameter.Value?.ToString());
-                }
+                Parameter = GetParametersForLogging(),
+                Target = _command.CommandText,
+                Duration = watch.ElapsedMilliseconds
+            };
 
-                return parameterDic;
-            }
-
-            return null;
+            _logger.Performance(detail);
         }
-
+        
         private void LogElapsed(Stopwatch watch, string commandText, Dictionary<string, string> parameterDic)
         {
             watch.Stop();
 
-            var perfDetail = LoggerHelper.Instance.GetPerformanceDetail();
-            perfDetail.Parameter = parameterDic;
-            perfDetail.Target = commandText;
-            perfDetail.Duration = watch.ElapsedMilliseconds;
-            LoggerHelper.Instance.Performance(perfDetail);
+            var perfDetail = new PerformanceDetail
+            {
+                Parameter = parameterDic, Target = commandText, Duration = watch.ElapsedMilliseconds
+            };
+            _logger.Performance(perfDetail);
         }
 
-        private DbDataReader CreateDbDataReader(DbDataReader original, Action callback) =>
-            new ProfiledDbDataReader(original, callback);
+        private void UnwrapAndAssignConnection(DbConnection value)
+        {
+            if (value is ProfiledDbConnection profiledConn)
+                _command.Connection = profiledConn.WrappedConnection;
+            else
+                _command.Connection = value;
+        }
+
+        private Dictionary<string, string> GetParametersForLogging()
+        {
+            return _command.Parameters.Count <= 0 ? null : _command.Parameters.Cast<DbParameter>().ToDictionary(parameter => parameter.ParameterName, parameter => parameter.Value?.ToString());
+        }
+
+
+        private DbDataReader CreateDbDataReader(DbDataReader original, Action callback)
+        {
+            return new ProfiledDbDataReader(original, callback);
+        }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
@@ -147,8 +153,8 @@ namespace MockSite.Common.Data
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
 
@@ -159,23 +165,32 @@ namespace MockSite.Common.Data
             CancellationToken cancellationToken)
         {
             DbDataReader result;
-            var parametersForLogging = GetParametersForLogging();
-            var commandText = _command.CommandText;
-            var watch = new Stopwatch();
-            watch.Start();
             try
             {
+                var parametersForLogging = GetParametersForLogging();
+                var commandText = _command.CommandText;
+                var watch = new Stopwatch();
+                watch.Start();
                 result = await _command.ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
                 result = CreateDbDataReader(result, () => LogElapsed(watch, commandText, parametersForLogging));
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
 
             return result;
+        }
+
+        private void DealWithException(Exception ex)
+        {
+            var exDetail = new ErrorDetail()
+            {
+                StackTrace = ex.ToString()
+            };
+            _logger.Error(exDetail);
         }
 
         public override int ExecuteNonQuery()
@@ -189,8 +204,8 @@ namespace MockSite.Common.Data
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
             finally
@@ -212,8 +227,8 @@ namespace MockSite.Common.Data
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
             finally
@@ -235,8 +250,8 @@ namespace MockSite.Common.Data
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
             finally
@@ -258,8 +273,8 @@ namespace MockSite.Common.Data
             }
             catch (Exception ex)
             {
-                var exDetail = LoggerHelper.Instance.GetExceptionDetail(ex);
-                LoggerHelper.Instance.Error(exDetail);
+                DealWithException(ex);
+
                 throw;
             }
             finally
@@ -270,23 +285,27 @@ namespace MockSite.Common.Data
             return result;
         }
 
-        public override void Cancel() => _command.Cancel();
+        public override void Cancel()
+        {
+            _command.Cancel();
+        }
 
-        public override void Prepare() => _command.Prepare();
+        public override void Prepare()
+        {
+            _command.Prepare();
+        }
 
-        protected override DbParameter CreateDbParameter() => _command.CreateParameter();
+        protected override DbParameter CreateDbParameter()
+        {
+            return _command.CreateParameter();
+        }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _command?.Dispose();
-            }
+            if (disposing) _command?.Dispose();
 
             _command = null;
             base.Dispose(disposing);
         }
-
-        public DbCommand InternalCommand => _command;
     }
 }

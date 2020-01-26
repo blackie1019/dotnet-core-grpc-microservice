@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package Account; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+option csharp_namespace = "MockSite.Message";
+import "CurrencyMessage.proto";
+import "CommonMessage.proto";
+
+service CurrencyService {
+  rpc Modify (Currency) returns (Common.BaseResponse);
+  rpc GetCurrencyAll (Common.Empty) returns (Currencies);
+  rpc Get (QueryCurrencyMessage) returns (Currency);
+  rpc Delete (QueryCurrencyMessage) returns (Common.BaseResponse);
+  rpc GetTtlCurrencies (Common.Empty) returns (Currencies);
+}

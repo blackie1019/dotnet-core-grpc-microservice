@@ -5,6 +5,10 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
+using Microsoft.Extensions.Logging;
+
+using IsolationLevel = System.Data.IsolationLevel;
 
 #endregion
 
@@ -13,47 +17,86 @@ namespace MockSite.Common.Data
     public sealed class ProfiledDbConnection : DbConnection
     {
         private DbConnection _connection;
+        private readonly ILoggerProvider _loggerProvider;
 
-        public ProfiledDbConnection(DbConnection connection)
+        public ProfiledDbConnection(ILoggerProvider loggerProvider, DbConnection connection)
         {
+            _loggerProvider = loggerProvider;
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _connection.StateChange += StateChangeHandler;
         }
 
-        public DbConnection WrappedConnection => _connection;
+        public DbConnection WrappedConnection
+        {
+            get { return _connection; }
+        }
 
         public override string ConnectionString
         {
-            get => _connection.ConnectionString;
-            set => _connection.ConnectionString = value;
+            get { return _connection.ConnectionString; }
+            set { _connection.ConnectionString = value; }
         }
 
-        public override int ConnectionTimeout => _connection.ConnectionTimeout;
+        public override int ConnectionTimeout
+        {
+            get { return _connection.ConnectionTimeout; }
+        }
 
-        public override string Database => _connection.Database;
+        public override string Database
+        {
+            get { return _connection.Database; }
+        }
 
-        public override string DataSource => _connection.DataSource;
+        public override string DataSource
+        {
+            get { return _connection.DataSource; }
+        }
 
-        public override string ServerVersion => _connection.ServerVersion;
+        public override string ServerVersion
+        {
+            get { return _connection.ServerVersion; }
+        }
 
-        public override ConnectionState State => _connection.State;
+        public override ConnectionState State
+        {
+            get { return _connection.State; }
+        }
 
-        public override void ChangeDatabase(string databaseName) => _connection.ChangeDatabase(databaseName);
+        protected override bool CanRaiseEvents
+        {
+            get { return true; }
+        }
 
-        public override void Close() => _connection.Close();
+        public override void ChangeDatabase(string databaseName)
+        {
+            _connection.ChangeDatabase(databaseName);
+        }
 
-        public override void Open() => _connection.Open();
+        public override void Close()
+        {
+            _connection.Close();
+        }
 
-        public override Task OpenAsync(CancellationToken cancellationToken) => _connection.OpenAsync(cancellationToken);
+        public override void Open()
+        {
+            _connection.Open();
+        }
+
+        public override Task OpenAsync(CancellationToken cancellationToken)
+        {
+            return _connection.OpenAsync(cancellationToken);
+        }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             return new ProfiledDbTransaction(_connection.BeginTransaction(isolationLevel), this);
         }
 
-        private DbCommand CreateDbCommand(DbCommand original) => new ProfiledDbCommand(original, this);
-
-        protected override DbCommand CreateDbCommand() => CreateDbCommand(_connection.CreateCommand());
+        protected override DbCommand CreateDbCommand()
+        {
+            return new ProfiledDbCommand(_loggerProvider.CreateLogger(nameof(ProfiledDbCommand)),
+                _connection.CreateCommand(), this);
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -72,16 +115,24 @@ namespace MockSite.Common.Data
             OnStateChange(stateChangeEventArguments);
         }
 
-        protected override bool CanRaiseEvents => true;
-
-        public override void EnlistTransaction(System.Transactions.Transaction transaction) =>
+        public override void EnlistTransaction(Transaction transaction)
+        {
             _connection.EnlistTransaction(transaction);
+        }
 
-        public override DataTable GetSchema() => _connection.GetSchema();
+        public override DataTable GetSchema()
+        {
+            return _connection.GetSchema();
+        }
 
-        public override DataTable GetSchema(string collectionName) => _connection.GetSchema(collectionName);
+        public override DataTable GetSchema(string collectionName)
+        {
+            return _connection.GetSchema(collectionName);
+        }
 
-        public override DataTable GetSchema(string collectionName, string[] restrictionValues) =>
-            _connection.GetSchema(collectionName, restrictionValues);
+        public override DataTable GetSchema(string collectionName, string[] restrictionValues)
+        {
+            return _connection.GetSchema(collectionName, restrictionValues);
+        }
     }
 }

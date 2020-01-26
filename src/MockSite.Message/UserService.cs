@@ -24,17 +24,19 @@ namespace MockSite.Message {
     static UserServiceReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFVc2VyU2VydmljZS5wcm90bxIHQWNjb3VudBoRVXNlck1lc3NhZ2UucHJv",
-            "dG8yngIKC1VzZXJTZXJ2aWNlEjsKBkNyZWF0ZRIaLkFjY291bnQuQ3JlYXRl",
-            "VXNlck1lc3NhZ2UaFS5BY2NvdW50LkJhc2VSZXNwb25zZRIoCgZHZXRBbGwS",
-            "Di5BY2NvdW50LkVtcHR5Gg4uQWNjb3VudC5Vc2VycxIvCgNHZXQSGS5BY2Nv",
-            "dW50LlF1ZXJ5VXNlck1lc3NhZ2UaDS5BY2NvdW50LlVzZXISOwoGVXBkYXRl",
-            "EhouQWNjb3VudC5VcGRhdGVVc2VyTWVzc2FnZRoVLkFjY291bnQuQmFzZVJl",
-            "c3BvbnNlEjoKBkRlbGV0ZRIZLkFjY291bnQuUXVlcnlVc2VyTWVzc2FnZRoV",
-            "LkFjY291bnQuQmFzZVJlc3BvbnNlQhOqAhBNb2NrU2l0ZS5NZXNzYWdlYgZw",
-            "cm90bzM="));
+            "ChFVc2VyU2VydmljZS5wcm90bxIHQWNjb3VudBoTQ29tbW9uTWVzc2FnZS5w",
+            "cm90bxoRVXNlck1lc3NhZ2UucHJvdG8y/QIKC1VzZXJTZXJ2aWNlEjMKBkNy",
+            "ZWF0ZRIaLkFjY291bnQuQ3JlYXRlVXNlck1lc3NhZ2UaDS5BY2NvdW50LlVz",
+            "ZXISPAoGR2V0QWxsEhouQWNjb3VudC5RdWVyeVVzZXJzTWVzc2FnZRoWLkFj",
+            "Y291bnQuVXNlcnNSZXNwb25zZRJLCgxBdXRoZW50aWNhdGUSHC5BY2NvdW50",
+            "LkF1dGhlbnRpY2F0ZU1lc3NhZ2UaHS5BY2NvdW50LkF1dGhlbnRpY2F0ZVJl",
+            "c3BvbnNlEjcKA0dldBIZLkFjY291bnQuUXVlcnlVc2VyTWVzc2FnZRoVLkFj",
+            "Y291bnQuVXNlclJlc3BvbnNlEjoKBlVwZGF0ZRIaLkFjY291bnQuVXBkYXRl",
+            "VXNlck1lc3NhZ2UaFC5Db21tb24uQmFzZVJlc3BvbnNlEjkKBkRlbGV0ZRIZ",
+            "LkFjY291bnQuUXVlcnlVc2VyTWVzc2FnZRoULkNvbW1vbi5CYXNlUmVzcG9u",
+            "c2VCE6oCEE1vY2tTaXRlLk1lc3NhZ2ViBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::MockSite.Message.UserMessageReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::MockSite.Message.CommonMessageReflection.Descriptor, global::MockSite.Message.UserMessageReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null));
     }
     #endregion

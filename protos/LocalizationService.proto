@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package Account; //will be placed in a namespace matching the package name if csharp_namespace is not specified
+option csharp_namespace = "MockSite.Message";
+import "LocalizationMessage.proto";
+import "CommonMessage.proto";
+
+service LocalizationService {
+  rpc Modify (Language) returns (Common.BaseResponse);
+  rpc GetAll (Common.Empty) returns (Languages);
+  rpc Get (QueryLanguageMessage) returns (LanguageSet);
+  rpc Delete (QueryLanguageMessage) returns (Common.BaseResponse);
+}

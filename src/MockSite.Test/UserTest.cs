@@ -5,14 +5,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MockSite.Common.Core.Constants.DomainService;
-using MockSite.Common.Core.Utilities;
+using MockSite.Core.Factories;
+using MockSite.Core.Interfaces;
 using MockSite.Core.Repositories;
 using MockSite.DomainService;
 using MockSite.Message;
-using MySql.Data.MySqlClient;
 using NSubstitute;
 using NUnit.Framework;
+using UserService = MockSite.Core.Services.UserService;
+using Bogus;
+using MockSite.Common.Core.Utilities;
+using MockSite.Common.Data.Utilities;
+using MockSite.Core.Entities;
+using MockSite.DomainService.Utilities;
+using NSubstitute.Core;
 
 #endregion
 
@@ -22,180 +28,353 @@ namespace MockSite.Test
     [TestFixture]
     public class UserTest
     {
-        private string _connectionString;
         private IConfiguration _config;
         private ILogger<UserRepository> _logger;
+        private SqlConnectionHelper _helper;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _logger = Substitute.For<ILogger<UserRepository>>();
-            _config = Substitute.For<IConfiguration>();
-            _connectionString = ConsulSettingHelper.Instance.GetValueFromKey(DbConnectionConst.TestKey);
-            _config.GetSection(DbConnectionConst.TestKey).Value.Returns(_connectionString);
-            var useDb = ConsulSettingHelper.Instance.GetValueFromKey(DbConnectionConst.UseDbKey);
-            _config.GetSection(DbConnectionConst.UseDbKey).Value.Returns(useDb);
+
+            var consulProvider =
+                ConsulConfigProvider.LoadConsulConfig("http://127.0.0.1:18500/v1/kv/",
+                    new[] {"MockSite"});
+            _config = new ConfigurationBuilder()
+                .AddJsonFile(consulProvider, "test.json", true, false)
+                .Build();
+
+            _helper = new SqlConnectionHelper(Substitute.For<ILoggerProvider>());
+            MethodTimeLogger.SetLogger(Substitute.For<ILoggerProvider>());
+        }
+
+        private UserServiceImpl GetServiceImpl(IUserRepository fakeUserRepository = null,
+            IRedisUserRepository fakeRedisRepo = null)
+        {
+            var redisRepo = fakeRedisRepo ?? new RedisUserRepository(_config, new RedisConnectHelper());
+            var userRepo = fakeUserRepository ?? new UserRepository(_logger, _config, _helper, redisRepo);
+
+            return new UserServiceImpl(
+                new UserService(
+                    _config,
+                    new UserRepositoryFactory(
+                        userRepo,
+                        Substitute.For<IMongoUserRepository>())
+                ));
         }
 
         [Test]
-        public async Task Test_Create_User()
+        public async Task F01_00_Create_User()
         {
             // Arrange
-            const string code = "testNew001";
-            const string email = "TestNew001@gmail.com";
-            const string name = "TestNew001";
-            const string password = "pass.123";
-            var createMessage = new CreateUserMessage
-            {
-                Code = code,
-                Email = email,
-                Name = name,
-                Password = password
-            };
-            var expectedUserCount = default(int);
+            var createMessage = CreateUserMessage();
 
             // Action
-            var actualResponseCode = default(ResponseCode);
-            var actualUser = default(User);
-            var actualUserCount = default(int);
-            await RollBackTransactionScope(async (connection, transaction) =>
-            {
-                var serviceImpl = GetServiceImpl(connection, transaction);
-                expectedUserCount = (await serviceImpl.GetAll(new Empty(), null)).Value.Count + 1;
-                actualResponseCode = (await serviceImpl.Create(createMessage, null)).Code;
-                var allUsers = (await serviceImpl.GetAll(new Empty(), null)).Value;
-                actualUser = allUsers.First(user => user.Code == code);
-                actualUserCount = allUsers.Count;
-            });
+            var serviceImpl = GetServiceImpl();
+            var actualResponse = await serviceImpl.Create(createMessage, null);
+            var actualUserResponse = await serviceImpl.Get(new QueryUserMessage {Id = actualResponse.Id}, null);
+
+            // Assert
+            Assert.AreEqual(createMessage.Code, actualUserResponse.Data.Code);
+            Assert.AreEqual(createMessage.Name, actualUserResponse.Data.Name);
+            Assert.AreEqual(createMessage.Email, actualUserResponse.Data.Email);
+            Assert.IsEmpty(actualUserResponse.Message);
+        }
+
+        [Test]
+        public async Task F01_01_Create_User_Db_Failed()
+        {
+            // Arrange
+            var createMessage = CreateUserMessage();
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+
+            // Action
+            var serviceImpl = GetServiceImpl(fakeRedisRepo: fakeRedisRepo);
+            await serviceImpl.Create(createMessage, null);
+            var actualResponse = (await serviceImpl.Create(createMessage, null));
+
+            // Assert
+            Assert.IsNull(actualResponse);
+            await fakeRedisRepo.Received(1).Create(Arg.Is<UserEntity>(u => u.Code == createMessage.Code));
+        }
+
+        [Test]
+        public async Task F01_02_Create_User_Redis_Failed()
+        {
+            // Arrange
+            var createMessage = CreateUserMessage();
+            var queryUsersMessage = new QueryUsersMessage {Code = createMessage.Code};
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+            fakeRedisRepo.Create(null).ReturnsForAnyArgs((Func<CallInfo, int>) (c => throw new Exception()));
+
+            // Action
+            var serviceImpl = GetServiceImpl(fakeRedisRepo: fakeRedisRepo);
+            var actualResponse = await serviceImpl.Create(createMessage, null);
+            var allUsers = (await serviceImpl.GetAll(queryUsersMessage, null)).Data;
+            var actualUser = allUsers.FirstOrDefault(u => u.Code == createMessage.Code);
+
+
+            // Assert;
+            Assert.IsNull(actualResponse);
+            Assert.IsNull(actualUser);
+            await fakeRedisRepo.Received(1).Create(Arg.Is<UserEntity>(u => u.Code == createMessage.Code));
+        }
+
+        [Test]
+        public async Task F02_Get_AllUsers()
+        {
+            // Action
+            var actualResult = await GetServiceImpl().GetAll(new QueryUsersMessage(), null);
+
+            // Assert
+            Assert.IsNotEmpty(actualResult.Data);
+        }
+
+        [Test]
+        public async Task F03_00_Get_User_By_Name()
+        {
+            // Arrange
+            var createMessage = CreateUserMessage();
+            var queryUsersMessage = new QueryUsersMessage {Name = createMessage.Name};
+
+            // Action
+            var serviceImpl = GetServiceImpl();
+            await serviceImpl.Create(createMessage, null);
+            var allUsers = (await serviceImpl.GetAll(queryUsersMessage, null)).Data;
+            var actualUser = allUsers.First();
+
+            // Assert
+            Assert.AreEqual(createMessage.Code, actualUser.Code);
+            Assert.AreEqual(createMessage.Name, actualUser.Name);
+            Assert.AreEqual(createMessage.Email, actualUser.Email);
+        }
+
+        [Ignore("Not Implemented")]
+        [Test]
+        public async Task F03_01_Get_User_By_Name_Keyword()
+        {
+            //Arrange
+            var createMessage = CreateUserMessage();
+            var truncateName = createMessage.Name.Substring(0, 2);
+            var queryUsersMessage = new QueryUsersMessage {Name = truncateName};
+
+            // Action
+            var serviceImpl = GetServiceImpl();
+            var actualResponseCode = (await serviceImpl.Create(createMessage, null)).Code;
+            var allUsers = (await serviceImpl.GetAll(queryUsersMessage, null)).Data;
+            var actualUser = allUsers.First();
 
             // Assert
             Assert.AreEqual(ResponseCode.Success, actualResponseCode);
-            Assert.AreEqual(code, actualUser.Code);
-            Assert.AreEqual(name, actualUser.Name);
-            Assert.AreEqual(email, actualUser.Email);
-            Assert.AreEqual(expectedUserCount, actualUserCount);
+            Assert.AreEqual(createMessage.Code, actualUser.Code);
+            Assert.AreEqual(createMessage.Name, actualUser.Name);
+            Assert.AreEqual(createMessage.Email, actualUser.Email);
         }
 
         [Test]
-        public async Task Test_Update_User()
+        public async Task F03_02_Get_User_By_Email()
+        {
+            var createMessage = CreateUserMessage();
+            var queryUsersMessage = new QueryUsersMessage {Email = createMessage.Email};
+
+            // Action
+            var serviceImpl = GetServiceImpl();
+            await serviceImpl.Create(createMessage, null);
+            var allUsers = (await serviceImpl.GetAll(queryUsersMessage, null)).Data;
+            var actualUser = allUsers.First();
+
+            // Assert
+            Assert.AreEqual(createMessage.Code, actualUser.Code);
+            Assert.AreEqual(createMessage.Name, actualUser.Name);
+            Assert.AreEqual(createMessage.Email, actualUser.Email);
+        }
+
+        [Test]
+        public async Task F04_Authenticate()
+        {
+            //Arrange
+            var createMessage = CreateUserMessage();
+
+            // Action
+            var serviceImpl = GetServiceImpl();
+            await serviceImpl.Create(createMessage, null);
+
+            var actualResponse = await serviceImpl
+                .Authenticate(new AuthenticateMessage {Name = createMessage.Name, Password = createMessage.Password},
+                    null);
+
+            var authenticateResponseCode = actualResponse.Code;
+
+            var actualUser = actualResponse.Data;
+
+            // Assert
+            Assert.AreEqual(ResponseCode.Success, authenticateResponseCode);
+            Assert.IsNotNull(actualUser);
+            Assert.AreEqual(createMessage.Code, actualUser.Code);
+        }
+
+        [Test]
+        public async Task F05_00_Update_User()
         {
             // Arrange
-            var targetUser = (await GetServiceImpl().GetAll(new Empty(), null)).Value.First();
-            var newEmail = targetUser.Email + ".test";
-            var newName = targetUser.Name + ".test";
+            var serviceImpl = GetServiceImpl();
+            var createMessage = CreateUserMessage();
+            var createdUser = await serviceImpl.Create(createMessage, null);
+            var newEmail = createdUser.Email + ".test";
+            var newName = createdUser.Name + ".test";
             var updateMessage = new UpdateUserMessage
             {
-                Id = targetUser.Id,
+                Id = createdUser.Id,
                 Email = newEmail,
                 Name = newName
             };
 
             // Action
-            var actualResponseCode = default(ResponseCode);
-            var actualUser = default(User);
-            await RollBackTransactionScope(async (connection, transaction) =>
-            {
-                var serviceImpl = GetServiceImpl(connection, transaction);
-                actualResponseCode = (await serviceImpl.Update(updateMessage, null)).Code;
-                actualUser = await serviceImpl.Get(new QueryUserMessage {Id = targetUser.Id}, null);
-            });
+            var actualResponseCode = (await serviceImpl.Update(updateMessage, null)).Code;
+            var actualUserResponse = await serviceImpl.Get(new QueryUserMessage {Id = createdUser.Id}, null);
 
             // Assert
             Assert.AreEqual(ResponseCode.Success, actualResponseCode);
-            Assert.AreEqual(newName, actualUser.Name);
-            Assert.AreEqual(newEmail, actualUser.Email);
+            Assert.AreEqual(newName, actualUserResponse.Data.Name);
+            Assert.AreEqual(newEmail, actualUserResponse.Data.Email);
+            Assert.IsEmpty(actualUserResponse.Message);
         }
 
         [Test]
-        public async Task Test_Delete_User()
+        public async Task F05_01_Update_User_Db_failed()
         {
             // Arrange
-            var targetUser = (await GetServiceImpl().GetAll(new Empty(), null)).Value.First();
-            var deleteMessage = new QueryUserMessage {Id = targetUser.Id};
-            var expectedUserCount = default(int);
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+            var serviceImpl = GetServiceImpl(fakeRedisRepo: fakeRedisRepo);
+            var createMessage = CreateUserMessage();
+            var createdUser = await serviceImpl.Create(createMessage, null);
+            var newEmail = createdUser.Email + ".test";
+            var newName = "12345678901234567890123456789012345678901234567890"; // over the field size 40 chars
+            var updateMessage = new UpdateUserMessage
+            {
+                Id = createdUser.Id,
+                Email = newEmail,
+                Name = newName
+            };
 
             // Action
-            var actualResponseCode = default(ResponseCode);
-            var actualUser = default(User);
-            var actualUserCount = default(int);
-            await RollBackTransactionScope(async (connection, transaction) =>
+            var actualResponseCode = (await serviceImpl.Update(updateMessage, null)).Code;
+            var actualUserResponse = await serviceImpl.Get(new QueryUserMessage {Id = createdUser.Id}, null);
+
+            // Assert
+            Assert.AreEqual(ResponseCode.GeneralError, actualResponseCode);
+            Assert.AreEqual(createMessage.Name, actualUserResponse.Data.Name);
+            Assert.AreEqual(createMessage.Email, actualUserResponse.Data.Email);
+            Assert.IsEmpty(actualUserResponse.Message);
+            await fakeRedisRepo.DidNotReceiveWithAnyArgs().Update(null);
+        }
+
+        [Test]
+        public async Task F05_02_Update_User_Redis_failed()
+        {
+            // Arrange
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+            fakeRedisRepo.Update(null).ReturnsForAnyArgs(_ => throw new Exception());
+            var serviceImpl = GetServiceImpl(fakeRedisRepo: fakeRedisRepo);
+            var createMessage = CreateUserMessage();
+            var createdUser = await serviceImpl.Create(createMessage, null);
+            var newEmail = createdUser.Email + ".test";
+            var newName = createdUser.Name + ".test";
+            var updateMessage = new UpdateUserMessage
             {
-                var serviceImpl = GetServiceImpl(connection, transaction);
-                expectedUserCount = (await serviceImpl.GetAll(new Empty(), null)).Value.Count - 1;
-                actualResponseCode = (await serviceImpl.Delete(deleteMessage, null)).Code;
-                var allUsers = (await serviceImpl.GetAll(new Empty(), null)).Value;
-                actualUser = allUsers.FirstOrDefault(user => user.Id == deleteMessage.Id);
-                actualUserCount = allUsers.Count;
-            });
+                Id = createdUser.Id,
+                Email = newEmail,
+                Name = newName
+            };
+
+            // Action
+            var actualResponseCode = (await serviceImpl.Update(updateMessage, null)).Code;
+            var actualUserResponse = await serviceImpl.Get(new QueryUserMessage {Id = createdUser.Id}, null);
+
+            // Assert
+            Assert.AreEqual(ResponseCode.GeneralError, actualResponseCode);
+            Assert.AreEqual(createMessage.Name, actualUserResponse.Data.Name);
+            Assert.AreEqual(createMessage.Email, actualUserResponse.Data.Email);
+            Assert.IsEmpty(actualUserResponse.Message);
+            await fakeRedisRepo.ReceivedWithAnyArgs(1).Update(null);
+        }
+
+        [Test]
+        public async Task F06_00_Delete_User()
+        {
+            // Arrange
+            var createMessage = CreateUserMessage();
+            var serviceImpl = GetServiceImpl();
+            var createdUser = await serviceImpl.Create(createMessage, null);
+            var deleteMessage = new QueryUserMessage {Id = createdUser.Id};
+
+            // Action
+            var actualResponseCode = (await serviceImpl.Delete(deleteMessage, null)).Code;
+            var actualUserResponse = await GetServiceImpl().Get(new QueryUserMessage{Id = deleteMessage.Id}, null);
 
             // Assert
             Assert.AreEqual(ResponseCode.Success, actualResponseCode);
-            Assert.IsNull(actualUser);
-            Assert.AreEqual(expectedUserCount, actualUserCount);
+            Assert.AreEqual(ResponseCode.NotFound, actualUserResponse.Code);
+            Assert.IsNull(actualUserResponse.Data);
+            Assert.IsEmpty(actualUserResponse.Message);
         }
 
         [Test]
-        public async Task Test_Get_User()
+        public async Task F06_01_Delete_User_Db_failed()
         {
             // Arrange
-            var user = (await GetServiceImpl().GetAll(new Empty(), null)).Value.First();
+            var deleteMessage = new QueryUserMessage {Id = 1};
+            var fakeUserRepo = Substitute.For<IUserRepository>();
+            fakeUserRepo.Delete(Arg.Is<int>(id => id == deleteMessage.Id)).Returns(_ => throw new Exception());
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+            var serviceImpl = GetServiceImpl(fakeUserRepo, fakeRedisRepo);
 
             // Action
-            var actualUser = await GetServiceImpl().Get(new QueryUserMessage {Id = user.Id}, null);
+            var actualResponseCode = (await serviceImpl.Delete(deleteMessage, null)).Code;
+            var actualUserResponse = await GetServiceImpl().Get(new QueryUserMessage{Id = deleteMessage.Id}, null);
 
             // Assert
-            Assert.IsNotNull(actualUser);
-            Assert.AreEqual(user.Id, actualUser.Id);
+            Assert.AreEqual(ResponseCode.GeneralError, actualResponseCode);
+            Assert.IsNotNull(actualUserResponse.Data);
+            Assert.IsEmpty(actualUserResponse.Message);
+            await fakeRedisRepo.DidNotReceiveWithAnyArgs().Delete(1);
         }
 
         [Test]
-        public async Task Test_Get_AllUsers()
+        public async Task F06_02_Delete_User_Redis_failed()
         {
+            // Arrange
+            var deleteMessage = new QueryUserMessage {Id = 1};
+            var fakeRedisRepo = Substitute.For<IRedisUserRepository>();
+            fakeRedisRepo.Delete(1).ReturnsForAnyArgs(_ => throw new Exception());
+            var serviceImpl = GetServiceImpl(fakeRedisRepo: fakeRedisRepo);
+
             // Action
-            var actualResult = await GetServiceImpl().GetAll(new Empty(), null);
+            var actualResponseCode = (await serviceImpl.Delete(deleteMessage, null)).Code;
+            var actualUserResponse = await GetServiceImpl().Get(new QueryUserMessage{Id = deleteMessage.Id}, null);
 
             // Assert
-            Assert.IsNotEmpty(actualResult.Value);
+            Assert.AreEqual(ResponseCode.GeneralError, actualResponseCode);
+            Assert.IsNotNull(actualUserResponse.Data);
+            Assert.IsEmpty(actualUserResponse.Message);
+            await fakeRedisRepo.Received(1).Delete(1);
         }
 
-        #region private
-
-        private UserServiceImpl GetServiceImpl()
+        private static CreateUserMessage CreateUserMessage()
         {
-            return new UserServiceImpl(
-                new Core.Services.UserService(
-                    _config,
-                    new UserRepository(_logger, _config)
-                )
-            );
-        }
-
-        private UserServiceImpl GetServiceImpl(MySqlConnection connection, MySqlTransaction transaction)
-        {
-            return new UserServiceImpl(
-                new Core.Services.UserService(
-                    _config,
-                    new UserRepository(_logger, _config, connection, transaction)
-                )
-            );
-        }
-
-        private async Task RollBackTransactionScope(Func<MySqlConnection, MySqlTransaction, Task> action)
-        {
-            using (var connection = new MySqlConnection(_connectionString))
+            const string password = "pass.123";
+            var testCode = Guid.NewGuid().ToString("N").Substring(0, 8);
+            var testEmail = new Faker().Internet.Email();
+            var testName = new Faker().Name.FullName();
+            var createMessage = new CreateUserMessage
             {
-                await connection.OpenAsync();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    await action(connection, transaction);
-                    if (transaction.Connection != null)
-                    {
-                        await transaction.RollbackAsync();
-                    }
-                }
-            }
-        }
+                Code = testCode,
+                Email = testEmail,
+                Name = testName,
+                Password = password
+            };
 
-        #endregion
+            return createMessage;
+        }
     }
 }

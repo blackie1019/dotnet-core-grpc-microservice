@@ -12,7 +12,7 @@ namespace MockSite.Core.Utilities
             DbType? dbType = null
         )
         {
-            return AddParameter(parameters, name, value, dbType, ParameterDirection.Input);
+            return parameters.AddParameter(name, value, dbType, ParameterDirection.Input);
         }
 
         public static DynamicParameters AddOutputParameter(
@@ -21,11 +21,11 @@ namespace MockSite.Core.Utilities
             DbType? dbType = null
         )
         {
-            return AddParameter(parameters, name, null, dbType, ParameterDirection.Output);
+            return parameters.AddParameter( name, null, dbType, ParameterDirection.Output);
         }
 
-        private static DynamicParameters AddParameter(
-            DynamicParameters parameters,
+        public static DynamicParameters AddParameter(
+            this DynamicParameters parameters,
             string name,
             object value = null,
             DbType? dbType = null,
@@ -33,6 +33,7 @@ namespace MockSite.Core.Utilities
         )
         {
             parameters.Add(name, value, dbType, direction);
+
             return parameters;
         }
     }

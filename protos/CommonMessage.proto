@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package Common;
+option csharp_namespace = "MockSite.Message";
+
+
+message Empty {
+}
+
+enum ResponseCode {
+    Success = 0;
+    NotFound = 10;
+    GeneralError = 999999;
+}
+
+message BaseResponse {
+    ResponseCode Code = 1;
+    string Message = 2;
+}
