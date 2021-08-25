@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <PackageReference Include="JWT" Version="5.3.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.18" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.1" />
         <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.6.2" />
